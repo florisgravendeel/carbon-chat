@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "type": "command",
+            "name": "Start carbon-chat",
+            "program": "bazel",
+            "args": ["run", "//explorer", "--", "../main.carbon"],
+            "workingDir": "carbon-lang/",
+        }
+    ]
+}
