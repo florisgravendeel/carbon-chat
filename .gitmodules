@@ -1,0 +1,3 @@
+[submodule "carbon-lang"]
+	path = carbon-lang
+	url = https://github.com/carbon-language/carbon-lang
