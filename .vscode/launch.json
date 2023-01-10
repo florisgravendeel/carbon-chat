@@ -1,0 +1,13 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "bashdb",
+            "request": "launch",
+            "name": "Start CarbonChat",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/start.sh",
+            "args": []
+        },
+      ]
+}
