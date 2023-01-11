@@ -1,3 +1,6 @@
 [submodule "carbon-lang"]
 	path = carbon-lang
 	url = https://github.com/carbon-language/carbon-lang
+[submodule "CarbonVSCode"]
+	path = CarbonVSCode
+	url = https://github.com/rishaandesai/CarbonVSCode.git
