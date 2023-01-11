@@ -4,3 +4,6 @@
 [submodule "CarbonVSCode"]
 	path = CarbonVSCode
 	url = https://github.com/rishaandesai/CarbonVSCode.git
+[submodule "websocketpp"]
+	path = websocketpp
+	url = https://github.com/zaphoyd/websocketpp/
