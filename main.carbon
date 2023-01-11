@@ -1,8 +1,8 @@
-package ExplorerTest api;
+package Chatserver api;
 
 fn Main() -> i32 {
-  var s: auto = "Starting up Carbon Chatserver!";
+  var msg: auto = "Starting up Carbon Chatserver!";
+  Print(msg);
 
-Print(s);
   return 0;
 }
