@@ -6,4 +6,4 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 include_directories(websocketpp)
 
-add_executable(WebsocketChat main.cpp)
+add_executable(WebsocketChat main.cpp simple_broadcast_server.cpp)
