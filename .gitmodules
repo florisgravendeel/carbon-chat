@@ -1,9 +1,9 @@
-[submodule "CarbonVSCode"]
-	path = CarbonVSCode
-	url = https://github.com/rishaandesai/CarbonVSCode.git
 [submodule "websocketpp"]
 	path = websocketpp
 	url = https://github.com/zaphoyd/websocketpp/
 [submodule "carbon-lang"]
 	path = carbon-lang
 	url = https://github.com/carbon-language/carbon-lang
+[submodule "seasocks"]
+	path = seasocks
+	url = https://github.com/mattgodbolt/seasocks
