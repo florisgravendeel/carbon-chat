@@ -1,10 +1,52 @@
 cmake_minimum_required(VERSION 3.24)
-project(WebsocketChat)
+project(Carbonchat)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+# Set the C++ standard to C++11
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-#include_directories(websocketpp)
-include_directories(${PROJECT_SOURCE_DIR}/seasocks/src/main/c)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 
-add_executable(WebsocketChat main.cpp ws_test.cpp)
+## Enable all compiler warnings
+if (MSVC)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
+else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+endif()
+
+# Link against pthreads under Unix systems
+if (NOT MSVC AND NOT MINGW)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+endif()
+
+# Under MinGW, statically link against the standard libraries
+if (MINGW)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libgcc -static-libstdc++")
+endif()
+
+# Force WebSocket++ to use 100% C++11 mode, so that it doesn't try to look for Boost
+# (Note that under MinGW, Boost.Thread is still required, due to a bug in MinGW that prevents the C++11 version from being used)
+add_definitions(-D_WEBSOCKETPP_CPP11_STRICT_)
+
+# Add the third-party headers directory to the search path
+include_directories(SYSTEM "include/websocketpp")
+include_directories(SYSTEM "include/asio/asio/include/")
+include_directories(SYSTEM "include/json/include")
+include_directories(SYSTEM "include")
+
+# Compile jsoncpp from source
+add_library(jsoncpp STATIC include/jsoncpp.cpp)
+#add_library(asio STATIC include/asio.hpp)
+
+# Build the server executable
+add_executable(server src/server.cpp src/WebsocketServer.cpp)
+target_link_libraries (server jsoncpp)
+
+set_target_properties(server PROPERTIES
+        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+        )
