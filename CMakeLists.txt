@@ -10,9 +10,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 
-
-# execute_process(COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/build.py ${CMAKE_CURRENT_SOURCE_DIR})
-#if(NOT AMALGATED_SOURCES)
+if(NOT AMALGAMATE_SRC)
 find_package( PythonInterp 3.0 REQUIRED )
 add_custom_command(
         OUTPUT ${PROJECT_SOURCE_DIR}/include/json/dist/jsoncpp.cpp
@@ -20,8 +18,8 @@ add_custom_command(
         DEPENDS ${PROJECT_SOURCE_DIR} src/server.cpp
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
 )
-#set(AMALGATED_SOURCES TRUE CACHE BOOL "Has the download happened?" FORCE)
-#endif()
+set(AMALGAMATE_SRC TRUE CACHE BOOL "Are the JSON source files amalgamated?" FORCE)
+endif()
 
 ## Enable all compiler warnings
 if (MSVC)
