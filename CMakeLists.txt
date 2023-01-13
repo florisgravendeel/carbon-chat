@@ -34,12 +34,10 @@ add_definitions(-D_WEBSOCKETPP_CPP11_STRICT_)
 # Add the third-party headers directory to the search path
 include_directories(SYSTEM "include/websocketpp")
 include_directories(SYSTEM "include/asio/asio/include/")
-include_directories(SYSTEM "include/json/include")
-include_directories(SYSTEM "include")
+include_directories(SYSTEM "include/json/dist") #TODO: compile with python first
 
 # Compile jsoncpp from source
-add_library(jsoncpp STATIC include/jsoncpp.cpp)
-#add_library(asio STATIC include/asio.hpp)
+add_library(jsoncpp STATIC include/json/dist/jsoncpp.cpp)
 
 # Build the server executable
 add_executable(server src/server.cpp src/WebsocketServer.cpp)
