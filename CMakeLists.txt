@@ -10,6 +10,8 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 
+find_package( PythonInterp 3.0 REQUIRED )
+
 ## Enable all compiler warnings
 if (MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
@@ -46,5 +48,13 @@ target_link_libraries (server jsoncpp)
 set_target_properties(server PROPERTIES
         ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
         LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-        )
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+
+add_custom_target(
+        run ALL
+        COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/build.py ${CMAKE_CURRENT_SOURCE_DIR}
+        BYPRODUCTS jsoncpp.cpp
+        COMMENT "Generating amalgamated sources"
+)
+
+add_dependencies(server run)
