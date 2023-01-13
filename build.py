@@ -1,7 +1,7 @@
-"""
-This python script builds the json-cpp library into a single source and header file.
-There is no need to manually run this file, as CMake will automatically run this file upon building.
-"""
+#
+# This python script builds the json-cpp library into a single source and header file.
+# There is no need to manually run this file, as CMake will automatically run this file upon building.
+#
 import os
 from typing import AnyStr
 import include.json.amalgamate
