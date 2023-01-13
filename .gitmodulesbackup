@@ -1,6 +1,0 @@
-[submodule "websocketpp"]
-	path = websocketpp
-	url = https://github.com/zaphoyd/websocketpp/
-[submodule "carbon-lang"]
-	path = carbon-lang
-	url = https://github.com/carbon-language/carbon-lang
