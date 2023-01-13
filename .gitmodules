@@ -1,0 +1,6 @@
+[submodule "include/carbon-lang"]
+	path = include/carbon-lang
+	url = https://github.com/carbon-language/carbon-lang
+[submodule "include/websocketpp"]
+	path = include/websocketpp
+	url = https://github.com/zaphoyd/websocketpp/
