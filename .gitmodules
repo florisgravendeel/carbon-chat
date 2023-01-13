@@ -4,3 +4,6 @@
 [submodule "include/websocketpp"]
 	path = include/websocketpp
 	url = https://github.com/zaphoyd/websocketpp/
+[submodule "include/asio"]
+	path = include/asio
+	url = https://github.com/chriskohlhoff/asio.git
