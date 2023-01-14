@@ -21,6 +21,18 @@ add_custom_command(
 set(AMALGAMATE_SRC TRUE CACHE BOOL "Are the JSON source files amalgamated?" FORCE)
 endif()
 
+set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "C:/local/boost_1_81_0") # TODO add if statment for Windows
+set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "C:/local/boost_1_81_0/lib64-msvc-14.3")
+find_package(Boost)
+if (Boost_FOUND)
+    message(STATUS "Boost was found")
+    include_directories(${Boost_INCLUDE_DIR})
+    add_definitions( "-DHAS_BOOST" )
+else()
+    message(AUTHOR_WARNING "Boost is required. Running the program will fail.")
+    return()
+endif()
+
 ## Enable all compiler warnings
 if (MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
