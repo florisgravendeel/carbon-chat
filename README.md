@@ -1,13 +1,16 @@
 # Carbon Chat
 > A WebSockets Chat system implementation using the [Carbon Language](https://github.com/carbon-language/carbon-lang) and C++.
 
-## Prerequisite
-- Carbon is required. See the install guide [here](https://github.com/carbon-language/carbon-lang#getting-started).
-- C++
-- CMake
+## Running the program
+I recommend to download to one of the releases. It's the quickest way run to the project.
 
-## Development
-Use [this extension](https://github.com/rishaandesai/CarbonVSCode.git) to enable syntax highlighting in Carbon.  
+## Prerequisite for development
+- C++
+- [CMake](https://cmake.org/download/)
+- [Boost 1.81.0](https://www.boost.org/users/download/)
+- Carbon is required. See the install guide [here](https://github.com/carbon-language/carbon-lang#getting-started).
+  - Optional: Use [this extension](https://github.com/rishaandesai/CarbonVSCode.git) to enable syntax highlighting in Carbon.  
+
 
 
 
