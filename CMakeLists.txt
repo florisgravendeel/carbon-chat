@@ -21,8 +21,10 @@ add_custom_command(
 set(AMALGAMATE_SRC TRUE CACHE BOOL "Are the JSON source files amalgamated?" FORCE)
 endif()
 
-set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "C:/local/boost_1_81_0") # TODO add if statment for Windows
-set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "C:/local/boost_1_81_0/lib64-msvc-14.3")
+if(WIN32)
+    set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "C:/local/boost_1_81_0")
+    set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "C:/local/boost_1_81_0/lib64-msvc-14.3")
+endif()
 find_package(Boost)
 if (Boost_FOUND)
     message(STATUS "Boost was found")
