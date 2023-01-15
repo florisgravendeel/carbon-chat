@@ -18,12 +18,13 @@ async def connect_to_chat(server_ip: str, username: str):
             cmd.secho(cmd.style("Chatserver online", fg=SUCCESS_COLOR))
             while True:
                 # await websocket.recv() # Read messages
-                user_input: str = input(Fore.CYAN + "You" + Fore.LIGHTCYAN_EX + ": ")
+                # Close socket on KeyBoardInterrupt
+                user_input: str = cmd.prompt(Fore.CYAN + "You" + Fore.LIGHTCYAN_EX + ": ", prompt_suffix="")
 
                 if len(user_input) == 0:
                     cmd.secho(cmd.style("You cannot send an empty message!", fg=FAIL_COLOR))
                 else:
-                    await websocket.send(user_input)
+                    await websocket.send(username + ": " + user_input)
     except (websockets.ConnectionClosed, OSError) as exception:
         cmd.secho(cmd.style("Chatserver offline. Stopping client", fg=FAIL_COLOR))
 
@@ -49,7 +50,6 @@ def configure_client():
     # msg = cmd.style("What are you going to do today?", fg=CHAT_MSG_PREFIX)
     # user = cmd.style("User2", fg=USER_PREFIX)
     # cmd.secho(user + ": " + msg)
-    #
     # cmd.prompt(cmd.style("You"))
 
 
@@ -57,4 +57,4 @@ if __name__ == '__main__':
     try:
         configure_client()
     except cmd.exceptions.Abort:
-        print("Exiting client")
+        cmd.secho(cmd.style("\nExiting client", fg=INFO_COLOR))
