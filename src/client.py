@@ -1,51 +1,60 @@
-import click as c
-import time
+import asyncio
+import click as cmd
+import websockets
+from colorama import Fore
 
-from colorama import Back, Style, Fore
+PROMPT_COLOR: str = "yellow"
+SUCCESS_COLOR: str = "green"
+INFO_COLOR: str = "yellow"
+FAIL_COLOR: str = "red"
+SERVER_MSG_ANNOUNCEMENT: str = "bright_yellow"
 
-username = c.style("User", fg='white')
-server_ip = c.style("localhost", fg='white')
+
+async def connect_to_chat(server_ip: str, username: str):
+    cmd.secho(cmd.style('Connecting to ' + server_ip, fg=INFO_COLOR, reset=True) + "..")
+
+    try:
+        async with websockets.connect("ws://" + server_ip + ":9002") as websocket:
+            cmd.secho(cmd.style("Chatserver online", fg=SUCCESS_COLOR))
+            while True:
+                # await websocket.recv() # Read messages
+                user_input: str = input(Fore.CYAN + "You" + Fore.LIGHTCYAN_EX + ": ")
+
+                if len(user_input) == 0:
+                    cmd.secho(cmd.style("You cannot send an empty message!", fg=FAIL_COLOR))
+                else:
+                    await websocket.send(user_input)
+    except (websockets.ConnectionClosed, OSError) as exception:
+        cmd.secho(cmd.style("Chatserver offline. Stopping client", fg=FAIL_COLOR))
+
+
+def configure_client():
+    username = cmd.style("User", fg='white')
+    server_ip = cmd.style("localhost", fg='white')
+
+    cmd.secho(cmd.style("Starting up Carbon-Chat client", fg=INFO_COLOR))
+    username = cmd.prompt('Please enter a username', default=username)
+    username = cmd.unstyle(username)
+    server_ip = cmd.prompt('Hi ' + cmd.style(username, fg="cyan")
+                           + ". Which server should I connect to?", default=server_ip)
+    server_ip = cmd.unstyle(server_ip)
+
+    asyncio.run(connect_to_chat(server_ip, username))
+
+    # username = cmd.style(username, fg=SERVER_MSG_ANNOUNCEMENT)
+    # cmd.secho(username + cmd.style(" joined the chat. Total online users: ", fg=SERVER_MSG_ANNOUNCEMENT)
+    #           + cmd.style("2", fg='bright_magenta'))
+    # username = cmd.unstyle(username)
+    #
+    # msg = cmd.style("What are you going to do today?", fg=CHAT_MSG_PREFIX)
+    # user = cmd.style("User2", fg=USER_PREFIX)
+    # cmd.secho(user + ": " + msg)
+    #
+    # cmd.prompt(cmd.style("You"))
+
 
 if __name__ == '__main__':
-    c.secho(c.style("Starting up Carbon-Chat client", fg="yellow"))
-    username = c.prompt('Please enter a username', default=username)
-
-    server_ip = c.prompt('Hi ' + c.style(username, fg='cyan')
-                         + ". Which server should I connect to?", default=server_ip)
-    c.secho(c.style('Connecting to ' + server_ip, fg="yellow", reset=True))
-    animation = [
-        "[        ]",
-        "[=       ]",
-        "[===     ]",
-        "[====    ]",
-        "[=====   ]",
-        "[======  ]",
-        "[======= ]",
-        "[========]",
-        "[ =======]",
-        "[  ======]",
-        "[   =====]",
-        "[    ====]",
-        "[     ===]",
-        "[      ==]",
-        "[       =]",
-        "[        ]",
-        "[        ]"
-    ]
-
-
-    notcomplete = True
-    i = 0
-
-    while notcomplete:
-        print(Fore.LIGHTGREEN_EX + animation[i % len(animation)], end='\r' + Style.RESET_ALL)
-        time.sleep(.1)
-        i += 1
-        if i == 25:
-            break
-    c.secho(c.style("Chatserver online", fg='green'))
-    username = c.style(username, fg="yellow")
-    c.secho(username + c.style(" joined the chat. Total online users: ", fg="bright_yellow")
-            + c.style("2", fg='bright_magenta'))
-    msg = c.style("What are you going to do today?", fg="bright_cyan")
-    c.secho(c.style("User2", fg="cyan") + ": " + msg)
+    try:
+        configure_client()
+    except cmd.exceptions.Abort:
+        print("Exiting client")
