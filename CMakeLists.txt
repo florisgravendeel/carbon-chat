@@ -65,7 +65,7 @@ include_directories(SYSTEM "include/json/dist") #TODO: compile with python first
 add_library(jsoncpp STATIC include/json/dist/jsoncpp.cpp)
 
 # Build the server executable
-add_executable(server src/server.cpp src/WebsocketServer.cpp)
+add_executable(server src/main.cpp)
 target_link_libraries (server jsoncpp)
 
 set_target_properties(server PROPERTIES

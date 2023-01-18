@@ -17,7 +17,6 @@ async def connect_to_chat(server_ip: str, username: str):
         async with websockets.connect("ws://" + server_ip + ":9002") as websocket:
             cmd.secho(cmd.style("Chatserver online", fg=SUCCESS_COLOR))
             while True:
-                # await websocket.recv() # Read messages
                 # Close socket on KeyBoardInterrupt
                 user_input: str = cmd.prompt(Fore.CYAN + "You" + Fore.LIGHTCYAN_EX + ": ", prompt_suffix="")
 
@@ -25,6 +24,7 @@ async def connect_to_chat(server_ip: str, username: str):
                     cmd.secho(cmd.style("You cannot send an empty message!", fg=FAIL_COLOR))
                 else:
                     await websocket.send(username + ": " + user_input)
+                await websocket.recv() # Read messages
     except (websockets.ConnectionClosed, OSError) as exception:
         cmd.secho(cmd.style("Chatserver offline. Stopping client", fg=FAIL_COLOR))
 
