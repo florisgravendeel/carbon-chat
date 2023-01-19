@@ -52,29 +52,28 @@ if (MINGW)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libgcc -static-libstdc++")
 endif()
 
-find_package(Boost COMPONENTS system filesystem unit_test_framework REQUIRED)
-add_executable(testTheTester test/chatserver_test.cpp)
-target_link_libraries(testTheTester
-${Boost_FILESYSTEM_LIBRARY}
-${Boost_SYSTEM_LIBRARY}
-${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(tester tester)
+find_package(Boost COMPONENTS system filesystem thread unit_test_framework REQUIRED)
+add_executable(unit_test test/chatserver_test.cpp)
+target_link_libraries(unit_test
+        ${Boost_FILESYSTEM_LIBRARY}
+        ${Boost_SYSTEM_LIBRARY}
+        ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test tester)
 
-# Force WebSocket++ to use 100% C++11 mode, so that it doesn't try to look for Boost
-# (Note that under MinGW, Boost.Thread is still required, due to a bug in MinGW that prevents the C++11 version from being used)
+# Force WebSocket++ to use 100% C++11 mode, as required in documentation
 add_definitions(-D_WEBSOCKETPP_CPP11_STRICT_)
 
 # Add the third-party headers directory to the search path
 include_directories(SYSTEM "include/websocketpp")
 include_directories(SYSTEM "include/asio/asio/include/")
-include_directories(SYSTEM "include/json/dist") #TODO: compile with python first
+include_directories(SYSTEM "include/json/dist")
 
 # Compile jsoncpp from source
 add_library(jsoncpp STATIC include/json/dist/jsoncpp.cpp)
 
 # Build the server executable
 add_executable(server src/main.cpp)
-target_link_libraries (server jsoncpp)
+target_link_libraries(server jsoncpp ${Boost_LIBRARIES})
 
 set_target_properties(server PROPERTIES
         ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
