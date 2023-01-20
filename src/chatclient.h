@@ -34,6 +34,7 @@ private:
     void log(const std::string& message);
 
     Client client;
+    std::string server_uri;
 };
 
 

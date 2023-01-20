@@ -5,31 +5,27 @@
 using namespace std;
 
 ChatClient::ChatClient(const std::string host, int port) {
+    server_uri = "ws://localhost:9002";
+    client.set_access_channels(websocketpp::log::alevel::all);
+    client.clear_access_channels(websocketpp::log::alevel::frame_payload);
+    client.init_asio();
+    // Register Event Handler
+    client.set_message_handler(bind(&ChatClient::on_message, this,websocketpp::lib::placeholders::_1, websocketpp::lib::placeholders::_2));
+}
+
+void ChatClient::start() {
+    log("Connecting to server at: " + server_uri);
     try {
-        std::string uri = "ws://localhost:9002";
-        log("Connecting to server at: " + uri);
-
-        // Set logging to be pretty verbose (everything except message payloads)
-        client.set_access_channels(websocketpp::log::alevel::all);
-        client.clear_access_channels(websocketpp::log::alevel::frame_payload);
-        client.set_error_channels(websocketpp::log::elevel::all);
-
-        // Initialize ASIO
-        client.init_asio();
-
-        // Register our message handler
-        client.set_message_handler(bind(&ChatClient::on_message, this, std::placeholders::_1, std::placeholders::_2));
-
         websocketpp::lib::error_code ec;
-        Client::connection_ptr con = client.get_connection(uri, ec);
+        Client::connection_ptr connection = client.get_connection(server_uri, ec);
         if (ec) {
-            std::cout << "Could not create connection because: " << ec.message() << std::endl;
+            std::cout << "could not create connection because: " << ec.message() << std::endl;
             return;
         }
 
         // Note that connect here only requests a connection. No network messages are
         // exchanged until the event loop starts running in the next line.
-        client.connect(con);
+        client.connect(connection);
 
         // Start the ASIO io_service run loop
         // this will cause a single connection to be made to the server. c.run()
@@ -38,10 +34,6 @@ ChatClient::ChatClient(const std::string host, int port) {
     } catch (websocketpp::exception const & e) {
         std::cout << e.what() << std::endl;
     }
-}
-
-void ChatClient::start() {
-
 }
 
 void ChatClient::stop() {
