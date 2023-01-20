@@ -1,5 +1,5 @@
 #include "chatserver.h"
-#include <iostream>
+
 using namespace std;
 
 ChatServer::ChatServer(int port, boost::mutex &mutex) {
@@ -11,6 +11,9 @@ ChatServer::ChatServer(int port, boost::mutex &mutex) {
 
     // Initialize Asio
     server.init_asio();
+
+    server.set_reuse_addr(true);
+    server.set_listen_backlog(64);
 
     // Register Event Handlers
     server.set_open_handler(bind(&ChatServer::on_successful_new_connection, this, placeholders::_1));
@@ -55,13 +58,15 @@ void ChatServer::broadcast_message(const string &msg) {
 
 void ChatServer::on_successful_new_connection(const Connection& connection) {
     connection_list.insert(connection);
+    string client = server.get_connection()->get_remote_endpoint();
+    log("New connection from " + client);
     string msg = "A user joined the chatroom. Total online users: " + to_string(connection_list.size());
     broadcast_message(msg);
 }
 
 void ChatServer::on_connection_failed(const Connection& connection) {
-    string msg = "Connection failed for client"; //TODO: log ip
-    log(msg);
+    string client = server.get_connection()->get_remote_endpoint();
+    log("Connection failed for client: " + client);
 }
 
 void ChatServer::on_close_connection(const Connection& connection) {

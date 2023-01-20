@@ -31,7 +31,7 @@ private:
     /// Sends a message to a single connection.
     void send_message(const std::string& msg);
 
-    /// Sends a message to all clients in the network
+    /// Sends a message to all clients in the network.
     void broadcast_message(const std::string& msg);
 
     /// Either open or fail will be called for each connection. Never both. All connections that
@@ -46,10 +46,7 @@ private:
     /// Close is not called for failed connections.
     void on_close_connection(const Connection& connection);
 
-    /// These handers are called in response to incoming messages or message like events.
-    /// They only will be called while the connection is in the open state.
-    /// Applies to all non-control messages, including both text and binary opcodes.
-    /// The message_ptr type and its API depends on your endpoint type and its config.
+    /// On data message received from WebSocket. This is method is called by a handler.
     void on_message(const Connection& connection, const Message& message);
 
     /// WebSocket++ has the capability of logging events during the lifetime of the connections that it processes.

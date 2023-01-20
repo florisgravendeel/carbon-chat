@@ -1,10 +1,13 @@
 import asyncio
 import signal
+import threading
 
 import click as cmd
 import websockets
 from aioconsole import ainput
 from colorama import Fore
+from prompt_toolkit import prompt
+from prompt_toolkit.patch_stdout import patch_stdout
 
 PROMPT_COLOR: str = "yellow"
 SUCCESS_COLOR: str = "green"
@@ -82,30 +85,36 @@ def configure_client():
 #     except cmd.exceptions.Abort:
 #         cmd.secho(cmd.style("\nExiting client", fg=INFO_COLOR))
 class PeriodicMessage:
-    def __init__(self, message="This is a periodic message. Enter new text to modify it."):
-        self.message = message
+    def __init__(self):
+        self.message = ""
 
     async def send_message(self, sleep_delay=3):
         while True:
-            print(self.message)
+            # print(self.message)
             await asyncio.sleep(sleep_delay)
 
     async def read_message(self):
         while True:
-            print("\nTest test 1 2 3")
+            print("Test test 1 2 3")
             await asyncio.sleep(3)
-
-    async def open_chat_prompt(self):
-        while True:
-            self.message = await ainput()
+            # a = prompt("You: ")
+            # print('got', repr(a))
+            # await asyncio.sleep(3)
 
     async def main(self):
-        await asyncio.gather(self.send_message(), self.open_chat_prompt(), self.read_message())
+        await asyncio.gather(self.send_message(), self.read_message())
+        print(999)
 
+
+def open_chat_prompt2():
+    with patch_stdout():
+        a = prompt('You: ')
+    print('got', repr(a))
 
 
 if __name__ == "__main__":
+    threading.Thread(target=open_chat_prompt2(), daemon=True).start()
 
     periodic_msg = PeriodicMessage()
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(periodic_msg.main())
+    asyncio.run(periodic_msg.main())
+    # loop.run_until_complete(periodic_msg.main())
