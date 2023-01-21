@@ -4,67 +4,56 @@
 #include "chatserver.cpp"
 #include "chatclient.cpp"
 
-// Copied from (https://stackoverflow.com/questions/2616906/how-do-i-output-coloured-text-to-a-linux-terminal)
-#include <ostream>
-namespace Color {
-    enum Code {
-        FG_RED      = 31,
-        FG_GREEN    = 32,
-        FG_BLUE     = 34,
-        FG_DEFAULT  = 39,
-        BG_RED      = 41,
-        BG_GREEN    = 42,
-        BG_BLUE     = 44,
-        BG_DEFAULT  = 49, //
 
-        FG_BLACK    = 30,
-        FG_YELLOW   = 33,
-        FG_MAGENTA  = 35,
-        FG_CYAN     = 36,
-        FG_LIGHT_GRAY   = 37,
-        FG_DARK_GRAY    = 90,
-        FG_LIGHT_RED    = 91,
-        FG_LIGHT_GREEN  = 92,
-        FG_LIGHT_YELLOW = 93,
-        FG_LIGHT_BLUE   = 94,
-        FG_LIGHT_MAGENTA= 95,
-        FG_LIGHT_CYAN   = 96,
-        FG_WHITE        = 97,
-    };
-    std::ostream& operator<<(std::ostream& os, Code code) {
-        return os << "\033[" << static_cast<int>(code) << "m";
-    }
-}
+#include "colored_terminal.cpp"
+#include "algorithm"
 using namespace std;
 #define PORT_NUMBER 9002
 
+string prompt(string question, vector<string> answers, bool check_answers) {
+    cout << question << " [" << Color::FG_LIGHT_GRAY << answers[0] << Color::FG_DEFAULT << "]: ";
+    string input;
+    getline(cin, input);
+    if (input.empty()) {
+        return answers[0];
+    } else if (!check_answers) {
+        return input;
+    } else if (find(answers.begin(), answers.end(), input) != answers.end()) {
+        return input;
+    } else {
+        cout << "Please enter a valid answer. ";
+        for (const string& x : answers){
+            cout << "[" << Color::FG_LIGHT_GRAY << x << Color::FG_DEFAULT << "] ";
+        }
+        cout << endl;
+        return prompt(question, answers, check_answers);
+    }
+}
+void info(string msg){
+    cout << Color::FG_YELLOW << msg << Color::FG_DEFAULT << endl;
+}
 
 int main(int argc, char** argv) {
-    cout << Color::FG_YELLOW << "Starting up Carbon-Chat client" << Color::FG_DEFAULT << endl;
-    cout << "Please enter a username [" << Color::FG_LIGHT_GRAY << "User" << Color::FG_DEFAULT << "]:" << endl;
-    cout << "Hi User. Which server should I connect to? [" << Color::FG_LIGHT_GRAY << "localhost" << Color::FG_DEFAULT << "]:" << endl;
-
-//    Connecting to localhost..
-//            Chatserver offline. Stopping client
-
-    return 0;
-    if (argc != 2) {
-        cout << "Please start with argument. -server or -client" << endl;
-        return 0;
+    cout << Color::FG_YELLOW << "Starting up Carbon-Chat" << Color::FG_DEFAULT << endl;
+    bool server = prompt("Do you want to host or join a chatserver?",
+                         {"host", "join"}, true) == "host";
+    string username;
+    if (!server){
+        username = prompt("Please enter a username", {"User"}, false);
+        cout << "Hi " << Color::FG_CYAN << username << Color::FG_DEFAULT << ". ";
     }
-    string option(argv[1]);
+    string ip = prompt("What is the IP address of the server?", {"localhost"}, false);
 
-    if (option == "-server") {
-        cout << "To stop the server. Use command: stop\n";
-//        Chatserver server(PORT_NUMBER, s_mutex);
+    int port = std::stoi(prompt("And which port?", {to_string(PORT_NUMBER)}, false));
 
-    } else if (option == "-client"){
-        cout << "Launching client.\nTo stop the client. Use command: stop" << endl;
-        ChatClient client("localhost", 9002, false);
-        client.start();
-
+    if (server) {
+        cout << Color::FG_YELLOW << "Launching server.\nTo stop the server. Use command: " << Color::BOLD << "/stop"
+        << Color::FG_DEFAULT << endl;
     } else {
-        cout << "Not a valid start argument. Choose between -server or -client";
+        cout << Color::FG_YELLOW <<"Launching client.\nTo stop the client. Use command: " << Color::BOLD << "/stop"
+        << Color::FG_DEFAULT << endl;
+        ChatClient client(ip, port, false);
+        client.start();
     }
 
     return 0;
