@@ -9,16 +9,9 @@ using namespace std;
 
 #define PORT_NUMBER 9002
 
-ChatServer* server;
-boost::mutex s_mutex;
-
-void start_thread(){
-    // Create instance of Chatserver.
-    server = new ChatServer(PORT_NUMBER, s_mutex);
-    server->start();
-}
 
 int main(int argc, char** argv) {
+
     if (argc != 2) {
         cout << "Please start with argument. -server or -client" << endl;
         return 0;
@@ -27,22 +20,10 @@ int main(int argc, char** argv) {
 
     if (option == "-server") {
         cout << "To stop the server. Use command: stop\n";
+//        Chatserver server(PORT_NUMBER, s_mutex);
 
-        boost::thread server_thread(start_thread);
-        string input;
-        while (true) {
-            getline(cin, input);
-            if (input == "stop") {
-                s_mutex.lock();
-                server->stop();
-                s_mutex.unlock();
-                server_thread.join();
-                break;
-            }
-            cout << "Invalid command." << endl;
-        }
     } else if (option == "-client"){
-
+        cout << "Launching client.\nTo stop the client. Use command: stop" << endl;
         ChatClient client("localhost", 9002, false);
         client.start();
 
