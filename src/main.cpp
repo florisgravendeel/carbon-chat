@@ -3,9 +3,6 @@
 //
 #include "chatserver.cpp"
 #include "chatclient.cpp"
-
-
-#include "colored_terminal.cpp"
 #include "algorithm"
 using namespace std;
 #define PORT_NUMBER 9002
@@ -48,10 +45,10 @@ int main(int argc, char** argv) {
 
     if (server) {
         cout << Color::FG_YELLOW << "Launching server.\nTo stop the server. Use command: " << Color::BOLD << "/stop"
-        << Color::FG_DEFAULT << endl;
+        << Color::RESET_ALL_ATTRIBUTES << endl;
     } else {
         cout << Color::FG_YELLOW <<"Launching client.\nTo stop the client. Use command: " << Color::BOLD << "/stop"
-        << Color::FG_DEFAULT << endl;
+        << Color::RESET_ALL_ATTRIBUTES << endl;
         ChatClient client(ip, port, false);
         client.start();
     }

@@ -5,6 +5,7 @@
 #include <ostream>
 namespace Color {
     enum Code {
+        RESET_ALL_ATTRIBUTES = 0,
         BOLD        = 1,
         FG_RED      = 31,
         FG_GREEN    = 32,
@@ -31,9 +32,9 @@ namespace Color {
     }
 
 
-//    cout << Color::FG_YELLOW << "Connecting to localhost.." << Color::FG_DEFAULT << endl;
-//    cout << Color::FG_RED << "Chatserver offline." << endl;
-//    cout << Color::FG_GREEN << "Chatserver online." << endl;
+//
+//
+//
 //    cout << Color::FG_LIGHT_YELLOW << "User joined the chat. Total online users: " << Color::FG_MAGENTA << "2" << endl;
 //    cout << Color::FG_BLUE << "Bob: " << Color::FG_LIGHT_BLUE << "How was your day?" << endl;
 }

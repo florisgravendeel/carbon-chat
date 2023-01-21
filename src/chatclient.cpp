@@ -2,6 +2,7 @@
 // Created by Floris Gravendeel on 20/01/2023.
 //
 #include "chatclient.h"
+#include "colored_terminal.cpp"
 
 ChatClient::ChatClient(const string &host, int port, bool debug) {
     connection_open = false;
@@ -9,10 +10,10 @@ ChatClient::ChatClient(const string &host, int port, bool debug) {
     server_uri = "ws://" + host + ":" + to_string(port);
 
     // Only log interesting things
-    client.clear_access_channels(LogLevel::all);
-    client.set_access_channels(LogLevel::connect);
-    client.set_access_channels(LogLevel::disconnect);
-    client.set_access_channels(LogLevel::app);
+    client.clear_access_channels(LogLevel::none);
+//    client.set_access_channels(LogLevel::connect);
+//    client.set_access_channels(LogLevel::disconnect);
+//    client.set_access_channels(LogLevel::app);
 
     // Documentation: Initialize asio transport with internal io_service
     client.init_asio();
@@ -42,7 +43,7 @@ void ChatClient::start() {
 
     // Queue the connection. No network connections will be made until the io_service is running.
     client.connect(con);
-
+    cout << Color::FG_YELLOW << "Connecting to localhost.." << Color::FG_DEFAULT << endl;
     // Create a thread to run the asio io_service.
     Thread asio_thread(&Client::run, &client);
 
@@ -53,24 +54,26 @@ void ChatClient::start() {
 }
 
 void ChatClient::stop() {
-    client.get_alog().write(LogLevel::app, "Exiting client! ");
+//    client.get_alog().write(LogLevel::app, "Exiting client! ");
     client.close(connection, websocketpp::close::status::going_away, "Leaving chat");
 }
 
 void ChatClient::on_successful_new_connection(const Connection &connection) {
-    client.get_alog().write(LogLevel::app,"Chatserver online!");
+    cout << Color::FG_GREEN << "Chatserver online." << Color::FG_DEFAULT << endl;
+//    client.get_alog().write(LogLevel::app,"Chatserver online!");
     ScopedLock guard(mutex);
     connection_open = true;
 }
 
 void ChatClient::on_connection_failed(const Connection &connection) {
-    client.get_alog().write(LogLevel::app,"Failed to connect to chatserver!");
+    cout << Color::FG_RED << "Failed to connect to chatserver!" << endl;
+    client.get_alog().write(LogLevel::app,"");
     ScopedLock guard(mutex);
     connection_closed = true;
 }
 
 void ChatClient::on_close_connection(const Connection &connection) {
-    client.get_alog().write(LogLevel::app,"Leaving chatserver!");
+//    client.get_alog().write(LogLevel::app,"Leaving chatserver!");
     ScopedLock guard(mutex);
     connection_closed = true;
 }
