@@ -15,6 +15,9 @@ typedef websocketpp::client<websocketpp::config::asio_client> Client;
 typedef websocketpp::lib::lock_guard<websocketpp::lib::mutex> ScopedLock;
 typedef websocketpp::config::asio_client::message_type::ptr Message;
 typedef websocketpp::connection_hdl Connection;
+typedef websocketpp::lib::thread Thread;
+typedef websocketpp::log::alevel LogLevel;
+typedef websocketpp::lib::error_code ErrorCode;
 
 class ChatClient {
 public:
@@ -22,9 +25,6 @@ public:
     void start();
     void stop();
 private:
-
-    /// Sends a message to all other users in the chat.
-    void send_message(const std::string& msg);
 
     /// Either open or fail will be called for each connection. Never both. All connections that
     /// begin with an open handler call will also have a matching close handler call when the connection ends.
@@ -41,8 +41,8 @@ private:
     /// On data message received from WebSocket. This is method is called by a handler.
     void on_message_received(const Connection& connection, const Message& message);
 
-    /// The chat prompt allows the user to type and send messages.
-    void chat_prompt();
+    /// The chat prompt allows the user to type in and send messages to all the other users in the chat.
+    void open_chat_prompt();
 
     /// WebSocket++ has the capability of logging events during the lifetime of the connections that it processes.
     /// Each endpoint has two independent logging interfaces that are used by all connections created by that endpoint.

@@ -9,10 +9,10 @@ ChatClient::ChatClient(const string &host, int port, bool debug) {
     server_uri = "ws://" + host + ":" + to_string(port);
 
     // Only log interesting things
-    client.clear_access_channels(websocketpp::log::alevel::all);
-    client.set_access_channels(websocketpp::log::alevel::connect);
-    client.set_access_channels(websocketpp::log::alevel::disconnect);
-    client.set_access_channels(websocketpp::log::alevel::app);
+    client.clear_access_channels(LogLevel::all);
+    client.set_access_channels(LogLevel::connect);
+    client.set_access_channels(LogLevel::disconnect);
+    client.set_access_channels(LogLevel::app);
 
     // Documentation: Initialize asio transport with internal io_service
     client.init_asio();
@@ -29,10 +29,10 @@ ChatClient::ChatClient(const string &host, int port, bool debug) {
 
 void ChatClient::start() {
 
-    websocketpp::lib::error_code ec;
-    Client::connection_ptr con = client.get_connection(server_uri, ec);
-    if (ec) {
-        client.get_alog().write(websocketpp::log::alevel::app,"Connection Error: " + ec.message());
+    ErrorCode error;
+    Client::connection_ptr con = client.get_connection(server_uri, error);
+    if (error) {
+        client.get_alog().write(LogLevel::app, "Connection Error: " + error.message());
         return;
     }
 
@@ -44,40 +44,33 @@ void ChatClient::start() {
     client.connect(con);
 
     // Create a thread to run the asio io_service.
-    websocketpp::lib::thread asio_thread(&Client::run, &client);
+    Thread asio_thread(&Client::run, &client);
 
     // Create a thread to open the chat prompt.
-    websocketpp::lib::thread chat_prompt(&ChatClient::chat_prompt, this);
+    Thread chat_prompt(&ChatClient::open_chat_prompt, this);
     asio_thread.join();
     chat_prompt.join();
 }
 
 void ChatClient::stop() {
-    client.get_alog().write(websocketpp::log::alevel::app, "Exiting client! ");
+    client.get_alog().write(LogLevel::app, "Exiting client! ");
     client.close(connection, websocketpp::close::status::going_away, "Leaving chat");
 }
 
-void ChatClient::send_message(const string &msg) {
-
-}
-
 void ChatClient::on_successful_new_connection(const Connection &connection) {
-    client.get_alog().write(websocketpp::log::alevel::app,"Chatserver online!");
-
+    client.get_alog().write(LogLevel::app,"Chatserver online!");
     ScopedLock guard(mutex);
     connection_open = true;
 }
 
 void ChatClient::on_connection_failed(const Connection &connection) {
-    client.get_alog().write(websocketpp::log::alevel::app,"Failed to connect to chatserver!");
-
+    client.get_alog().write(LogLevel::app,"Failed to connect to chatserver!");
     ScopedLock guard(mutex);
     connection_closed = true;
 }
 
 void ChatClient::on_close_connection(const Connection &connection) {
-    client.get_alog().write(websocketpp::log::alevel::app,"Leaving chatserver!");
-
+    client.get_alog().write(LogLevel::app,"Leaving chatserver!");
     ScopedLock guard(mutex);
     connection_closed = true;
 }
@@ -95,39 +88,36 @@ void sleep() {
 #endif
 }
 
-void ChatClient::chat_prompt(){
+void ChatClient::open_chat_prompt(){
     string input;
     while (true)
     {
         bool wait = false;
-
         {
             ScopedLock guard(mutex);
-            // If the connection has been closed, stop generating telemetry
+            // Stop if the connection has been closed.
             if (connection_closed) {break;}
 
-            // If the connection hasn't been opened yet wait a bit and retry
+            // If the connection hasn't been opened yet wait a bit and retry.
             if (!connection_open) {
                 wait = true;
             }
         }
-
         if (wait) {
             sleep();
             continue;
         }
-
         //Read user input from stdin
         std::getline(std::cin, input);
         if (input == "/stop"){
-            client.get_alog().write(websocketpp::log::alevel::app, "Stopping chatprompt!");
+            client.get_alog().write(LogLevel::app, "Stopping chatprompt!");
             stop();
             break;
         }
-        websocketpp::lib::error_code ec;
-        client.send(connection, input, websocketpp::frame::opcode::text, ec);
-        if (ec) {
-            client.get_alog().write(websocketpp::log::alevel::app,"Send Error: "+ec.message());
+        ErrorCode error;
+        client.send(connection, input, websocketpp::frame::opcode::text, error);
+        if (error) {
+            client.get_alog().write(LogLevel::app, "Error sending message: " + error.message());
             break;
         }
         sleep();
