@@ -20,7 +20,7 @@ void start_thread(){
 
 int main(int argc, char** argv) {
     if (argc != 2) {
-        cout << "Please start with argument. -server or -client";
+        cout << "Please start with argument. -server or -client" << endl;
         return 0;
     }
     string option(argv[1]);
@@ -42,8 +42,31 @@ int main(int argc, char** argv) {
             cout << "Invalid command." << endl;
         }
     } else if (option == "-client"){
-        ChatClient client("localhost", PORT_NUMBER);
-        client.start();
+        ChatClient* client;
+
+//        std::thread inputThread([&client]() {
+//            string input;
+//            while (true) {
+//                //Read user input from stdin
+//                std::getline(std::cin, input);
+//                cout << input << endl;
+//                if (input == "/stop"){
+//                    client->stop();
+//                    break;
+//                }
+//                //Broadcast the input to all connected clients (is sent on the network thread)
+////            server.broadcastMessage("userInput", payload);
+//
+//            }
+//        });
+
+        std::thread clientThread([&client]() {
+            client = new ChatClient("localhost", PORT_NUMBER);
+            client->start();
+        });
+        clientThread.join();
+
+
     } else {
         cout << "Not a valid start argument. Choose between -server or -client";
     }

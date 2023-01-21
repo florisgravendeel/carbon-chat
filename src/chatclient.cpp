@@ -4,13 +4,18 @@
 #include "chatclient.h"
 using namespace std;
 
-ChatClient::ChatClient(const std::string host, int port) {
+ChatClient::ChatClient(const std::string host, int port, bool debug = true) {
     server_uri = "ws://localhost:9002";
-    client.set_access_channels(websocketpp::log::alevel::all);
-    client.clear_access_channels(websocketpp::log::alevel::frame_payload);
+    if (debug) {
+        client.set_access_channels(websocketpp::log::alevel::all);
+        client.clear_access_channels(websocketpp::log::alevel::frame_payload);
+    } else {
+        client.set_access_channels(websocketpp::log::alevel::none);
+    }
     client.init_asio();
     // Register Event Handler
-    client.set_message_handler(bind(&ChatClient::on_message, this,websocketpp::lib::placeholders::_1, websocketpp::lib::placeholders::_2));
+    client.set_message_handler(bind(&ChatClient::on_message, this, websocketpp::lib::placeholders::_1,
+                                    websocketpp::lib::placeholders::_2));
 }
 
 void ChatClient::start() {
@@ -34,10 +39,17 @@ void ChatClient::start() {
     } catch (websocketpp::exception const & e) {
         std::cout << e.what() << std::endl;
     }
+    stop();
 }
 
 void ChatClient::stop() {
+    websocketpp::lib::error_code ec;
+    Client::connection_ptr connection = client.get_connection(server_uri, ec);
+    if (ec){
+        log(ec.message());
+    }
 
+    connection->close(websocketpp::close::status::going_away, "Exiting program");
 }
 
 void ChatClient::send_message(const std::string &msg) {
@@ -49,5 +61,6 @@ void ChatClient::on_message(const Connection &connection, const Message &message
 }
 
 void ChatClient::log(const std::string &message) {
-    client.get_alog().write(websocketpp::log::alevel::app, message);
+    cout << message << endl;
+//    client.get_alog().write(websocketpp::log::alevel::app, message);
 }

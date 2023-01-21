@@ -7,17 +7,18 @@
 
 #include <websocketpp/config/asio_no_tls_client.hpp>
 #include <websocketpp/client.hpp>
+#include <websocketpp/common/thread.hpp>
 
 #include <iostream>
 
 typedef websocketpp::client<websocketpp::config::asio_client> Client;
-
+typedef websocketpp::lib::lock_guard<websocketpp::lib::mutex> ScopedLock;
 typedef websocketpp::connection_hdl Connection;
 typedef Client::message_ptr Message;
 
 class ChatClient {
 public:
-    ChatClient(const std::string host, int port);
+    ChatClient(const std::string host, int port, bool debug);
     void start();
     void stop();
 private:
@@ -35,6 +36,7 @@ private:
 
     Client client;
     std::string server_uri;
+    ScopedLock lock;
 };
 
 
