@@ -42,30 +42,9 @@ int main(int argc, char** argv) {
             cout << "Invalid command." << endl;
         }
     } else if (option == "-client"){
-        ChatClient* client;
 
-//        std::thread inputThread([&client]() {
-//            string input;
-//            while (true) {
-//                //Read user input from stdin
-//                std::getline(std::cin, input);
-//                cout << input << endl;
-//                if (input == "/stop"){
-//                    client->stop();
-//                    break;
-//                }
-//                //Broadcast the input to all connected clients (is sent on the network thread)
-////            server.broadcastMessage("userInput", payload);
-//
-//            }
-//        });
-
-        std::thread clientThread([&client]() {
-            client = new ChatClient("localhost", PORT_NUMBER);
-            client->start();
-        });
-        clientThread.join();
-
+        ChatClient client("localhost", 9002, false);
+        client.start();
 
     } else {
         cout << "Not a valid start argument. Choose between -server or -client";
