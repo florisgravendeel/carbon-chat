@@ -4,16 +4,21 @@
 #include "chatclient.h"
 #include "colored_terminal.cpp"
 
-ChatClient::ChatClient(const string &host, int port, bool debug) {
+ChatClient::ChatClient(const string &host, int port, const string &username, bool debug = false) {
     connection_open = false;
     connection_closed = false;
+    ChatClient::username = username;
     server_uri = "ws://" + host + ":" + to_string(port);
 
-    // Only log interesting things
-    client.clear_access_channels(LogLevel::none);
-//    client.set_access_channels(LogLevel::connect);
-//    client.set_access_channels(LogLevel::disconnect);
-//    client.set_access_channels(LogLevel::app);
+    if (debug) { // Only log interesting things
+        client.clear_access_channels(LogLevel::all);
+        client.set_access_channels(LogLevel::connect);
+        client.set_access_channels(LogLevel::disconnect);
+        client.set_access_channels(LogLevel::app);
+    } else {
+        client.clear_access_channels(LogLevel::none);
+        client.set_access_channels(LogLevel::none);
+    }
 
     // Documentation: Initialize asio transport with internal io_service
     client.init_asio();
@@ -33,7 +38,7 @@ void ChatClient::start() {
     ErrorCode error;
     Client::connection_ptr con = client.get_connection(server_uri, error);
     if (error) {
-        client.get_alog().write(LogLevel::app, "Connection Error: " + error.message());
+        log("Connection error: " + error.message(), LogType::Error);
         return;
     }
 
@@ -43,7 +48,8 @@ void ChatClient::start() {
 
     // Queue the connection. No network connections will be made until the io_service is running.
     client.connect(con);
-    cout << Color::FG_YELLOW << "Connecting to localhost.." << Color::FG_DEFAULT << endl;
+    log("Connecting to localhost..", LogType::Info);
+
     // Create a thread to run the asio io_service.
     Thread asio_thread(&Client::run, &client);
 
@@ -54,32 +60,30 @@ void ChatClient::start() {
 }
 
 void ChatClient::stop() {
-//    client.get_alog().write(LogLevel::app, "Exiting client! ");
+    log("Leaving chatserver!", LogType::Info);
     client.close(connection, websocketpp::close::status::going_away, "Leaving chat");
 }
 
 void ChatClient::on_successful_new_connection(const Connection &connection) {
-    cout << Color::FG_GREEN << "Chatserver online." << Color::FG_DEFAULT << endl;
-//    client.get_alog().write(LogLevel::app,"Chatserver online!");
+    log("Chatserver online.", LogType::Success);
     ScopedLock guard(mutex);
     connection_open = true;
 }
 
 void ChatClient::on_connection_failed(const Connection &connection) {
-    cout << Color::FG_RED << "Failed to connect to chatserver!" << endl;
-    client.get_alog().write(LogLevel::app,"");
+    log("Failed to connect to chatserver!", LogType::Error);
     ScopedLock guard(mutex);
     connection_closed = true;
 }
 
 void ChatClient::on_close_connection(const Connection &connection) {
-//    client.get_alog().write(LogLevel::app,"Leaving chatserver!");
     ScopedLock guard(mutex);
     connection_closed = true;
+    log("Connection closed successfully.", LogType::Success);
 }
 
 void ChatClient::on_message_received(const Connection &connection, const Message &message) {
-    std::cout << message->get_payload() << std::endl;
+    log(message->get_payload(), LogType::Chat);
 }
 
 void sleep() {
@@ -113,20 +117,53 @@ void ChatClient::open_chat_prompt(){
         //Read user input from stdin
         std::getline(std::cin, input);
         if (input == "/stop"){
-            client.get_alog().write(LogLevel::app, "Stopping chatprompt!");
             stop();
             break;
         }
         ErrorCode error;
-        client.send(connection, input, websocketpp::frame::opcode::text, error);
+
+        client.send(connection, username + ": " + input, websocketpp::frame::opcode::text, error);
         if (error) {
-            client.get_alog().write(LogLevel::app, "Error sending message: " + error.message());
+            log("Error sending message: " + error.message(), LogType::Error);
             break;
         }
         sleep();
     }
 }
 
-void ChatClient::log(const string &message) {
+void ChatClient::log(const string &message, ChatClient::LogType logType) {
 
+    switch (logType) {
+        case Info:
+            cout << Color::FG_YELLOW << message << Color::FG_DEFAULT << endl;
+            break;
+        case ServerAnnouncement:
+            break;
+        case Chat:
+        {
+            char *msg = new char[message.length() + 1];
+            strcpy(msg, message.c_str());
+
+            char *ptr;
+            ptr = strtok(msg, ":");
+            short i = 0;
+            while (ptr != nullptr) {
+                if (i == 0) {
+                    cout << Color::FG_BLUE << ptr << ":" << Color::FG_LIGHT_BLUE;
+                } else {
+                    cout << ptr;
+                }
+                ptr = strtok(nullptr, ":");
+                i++;
+            }
+            cout << endl;
+        }
+            break;
+        case Error:
+            cout << Color::FG_RED << message << Color::FG_DEFAULT << endl;
+            break;
+        case Success:
+            cout << Color::FG_GREEN << message << Color::FG_DEFAULT << endl;
+            break;
+    }
 }

@@ -21,7 +21,7 @@ typedef websocketpp::lib::error_code ErrorCode;
 
 class ChatClient {
 public:
-    ChatClient(const std::string& host, int port, bool debug);
+    ChatClient(const std::string& host, int port, const std::string& username, bool debug);
     void start();
     void stop();
 private:
@@ -44,10 +44,11 @@ private:
     /// The chat prompt allows the user to type in and send messages to all the other users in the chat.
     void open_chat_prompt();
 
+    enum LogType { Info, ServerAnnouncement, Chat, Error, Success};
     /// WebSocket++ has the capability of logging events during the lifetime of the connections that it processes.
     /// Each endpoint has two independent logging interfaces that are used by all connections created by that endpoint.
     /// The method uses the an access interface for application specific logs.
-    void log(const std::string& message);
+    static void log(const std::string& message, LogType logType);
 
     Client client;
     websocketpp::connection_hdl connection;
@@ -55,6 +56,7 @@ private:
     bool connection_open;
     bool connection_closed;
     string server_uri;
+    string username;
 };
 
 

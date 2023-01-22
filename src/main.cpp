@@ -31,6 +31,7 @@ void info(string msg){
 }
 
 int main(int argc, char** argv) {
+
     cout << Color::FG_YELLOW << "Starting up Carbon-Chat" << Color::FG_DEFAULT << endl;
     bool server = prompt("Do you want to host or join a chatserver?",
                          {"host", "join"}, true) == "host";
@@ -49,7 +50,7 @@ int main(int argc, char** argv) {
     } else {
         cout << Color::FG_YELLOW <<"Launching client.\nTo stop the client. Use command: " << Color::BOLD << "/stop"
         << Color::RESET_ALL_ATTRIBUTES << endl;
-        ChatClient client(ip, port, false);
+        ChatClient client(ip, port, username,false);
         client.start();
     }
 
