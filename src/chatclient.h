@@ -22,8 +22,10 @@ typedef websocketpp::lib::error_code ErrorCode;
 class ChatClient {
 public:
     ChatClient(const std::string& host, int port, const std::string& username, bool debug);
-    void start();
-    void stop();
+
+    virtual void start();
+
+    virtual void stop();
 private:
 
     /// Either open or fail will be called for each connection. Never both. All connections that

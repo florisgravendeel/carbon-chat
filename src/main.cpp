@@ -7,7 +7,7 @@
 using namespace std;
 #define PORT_NUMBER 9002
 
-string prompt(string question, vector<string> answers, bool check_answers) {
+string prompt(const string& question, vector<string> answers, bool check_answers) {
     cout << question << " [" << Color::FG_LIGHT_GRAY << answers[0] << Color::FG_DEFAULT << "]: ";
     string input;
     getline(cin, input);
@@ -26,33 +26,35 @@ string prompt(string question, vector<string> answers, bool check_answers) {
         return prompt(question, answers, check_answers);
     }
 }
-void info(string msg){
-    cout << Color::FG_YELLOW << msg << Color::FG_DEFAULT << endl;
-}
 
 int main(int argc, char** argv) {
 
     cout << Color::FG_YELLOW << "Starting up Carbon-Chat" << Color::FG_DEFAULT << endl;
-    bool server = prompt("Do you want to host or join a chatserver?",
+    bool selected_server = prompt("Do you want to host or join a chatserver?",
                          {"host", "join"}, true) == "host";
+
     string username;
-    if (!server){
+    string ip;
+    int port;
+    if (selected_server) {
+        port = std::stoi(prompt("Which port should the server be hosted on?",
+                                {to_string(PORT_NUMBER)}, false));
+        cout << Color::FG_YELLOW << "Launching server.\nTo stop the server. Use command: " << Color::BOLD << "/stop"
+             << Color::RESET_ALL_ATTRIBUTES << endl;
+        ChatServer server(port);
+        server.start();
+    } else { // Start client
         username = prompt("Please enter a username", {"User"}, false);
         cout << "Hi " << Color::FG_CYAN << username << Color::FG_DEFAULT << ". ";
-    }
-    string ip = prompt("What is the IP address of the server?", {"localhost"}, false);
+        ip = prompt("What is the IP address of the server?", {"localhost"}, false);
+        port = std::stoi(prompt("And which port?", {to_string(PORT_NUMBER)}, false));
 
-    int port = std::stoi(prompt("And which port?", {to_string(PORT_NUMBER)}, false));
-
-    if (server) {
-        cout << Color::FG_YELLOW << "Launching server.\nTo stop the server. Use command: " << Color::BOLD << "/stop"
-        << Color::RESET_ALL_ATTRIBUTES << endl;
-    } else {
-        cout << Color::FG_YELLOW <<"Launching client.\nTo stop the client. Use command: " << Color::BOLD << "/stop"
-        << Color::RESET_ALL_ATTRIBUTES << endl;
-        ChatClient client(ip, port, username,false);
+        cout << Color::FG_YELLOW << "Launching client.\nTo stop the client. Use command: " << Color::BOLD << "/stop"
+             << Color::RESET_ALL_ATTRIBUTES << endl;
+        ChatClient client(ip, port, username, false);
         client.start();
     }
+
 
     return 0;
 }

@@ -3,6 +3,7 @@
 //
 #include "chatclient.h"
 #include "colored_terminal.cpp"
+using namespace std;
 
 ChatClient::ChatClient(const string &host, int port, const string &username, bool debug = false) {
     connection_open = false;

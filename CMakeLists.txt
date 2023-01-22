@@ -53,7 +53,7 @@ if (MINGW)
 endif()
 
 find_package(Boost COMPONENTS system filesystem thread unit_test_framework REQUIRED)
-add_executable(unit_test test/chatserver_test.cpp)
+add_executable(unit_test test/carbonchat_test.cpp)
 target_link_libraries(unit_test
         ${Boost_FILESYSTEM_LIBRARY}
         ${Boost_SYSTEM_LIBRARY}
