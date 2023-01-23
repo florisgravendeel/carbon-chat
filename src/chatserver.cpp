@@ -1,5 +1,7 @@
 #include "chatserver.h"
 
+#include <utility>
+
 #include "boost/iostreams/stream.hpp"
 #include "boost/iostreams/device/null.hpp"
 
@@ -11,10 +13,7 @@ ChatServer::ChatServer(int port) {
     // Set logging settings to all except for frame level (too noisy)
     server.set_access_channels(LogLevel::app);
     server.clear_access_channels(LogLevel::frame_payload);
-//    boost::iostreams::stream<boost::iostreams::null_sink> nullOstream( (boost::iostreams::null_sink()));
 
-//    server.get_alog().set_ostream(&nullOstream);
-//    server.get_elog().set_ostream(&nullOstream);
     // Initialize Asio
     server.init_asio();
 
@@ -39,11 +38,11 @@ void ChatServer::start() {
 
 void ChatServer::stop() {
     log("Server shutting down");
-    // Documentation: Stop listening and accepting new connections. This will not end any existing connections.
-//    server.stop_listening();
+
     initiating_shutdown = true; // See -> on_close_connection
     log("Total connections: " + std::to_string(connections.size()));
 
+    // Close all existing connections.
     for (const auto& connection: connections) {
         ErrorCode error;
 
@@ -56,7 +55,7 @@ void ChatServer::stop() {
 
 void ChatServer::send_message(Connection connection, const std::string &msg) {
     ErrorCode error;
-    server.send(connection, msg, websocketpp::frame::opcode::text);
+    server.send(std::move(connection), msg, websocketpp::frame::opcode::text);
     if (error){
         log("Error sending message: " + error.message());
     }
@@ -64,9 +63,9 @@ void ChatServer::send_message(Connection connection, const std::string &msg) {
 
 void ChatServer::broadcast_message(const std::string &msg) {
     log("[broadcast_message] " + msg);
-//    for (auto connection : connections){
-//        send_message(connection, msg);
-//    }
+    for (const auto& connection : connections){
+        send_message(connection, msg);
+    }
 }
 
 void ChatServer::on_successful_new_connection(const Connection& connection) {
@@ -77,7 +76,7 @@ void ChatServer::on_successful_new_connection(const Connection& connection) {
 }
 
 void ChatServer::on_connection_failed(Connection connection) {
-    Server::connection_ptr conn = server.get_con_from_hdl(connection);
+    Server::connection_ptr conn = server.get_con_from_hdl(std::move(connection));
     log("Connection failed for client: " + conn->get_ec().message());
 
 }
@@ -91,14 +90,14 @@ void ChatServer::on_close_connection(const Connection& connection) {
     }
 }
 
-void ChatServer::on_message_received(const Connection& connection, Message message) {
-    if (message->get_payload() == "User: /stopserver"){
+void ChatServer::on_message_received(const Connection& connection, const Message& message) {
+    if (message->get_payload() == "User: /stopserver"){ //TODO: fix this command
         stop();
-    } //else
+    } else
 
-//    for (const auto& it: connections) {
-//        server.send(it, message);
-//    }
+    for (const auto& it: connections) {
+        server.send(it, message);
+    }
 }
 
 void ChatServer::log(const std::string &message) {
