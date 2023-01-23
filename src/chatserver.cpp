@@ -29,27 +29,27 @@ void ChatServer::start() {
     server.listen(port);
     server.start_accept();
     server.run();
-    Thread asio_thread(&Server::run, &server);
-    asio_thread.join();
+//    Thread asio_thread(&Server::run, &server);
+//    asio_thread.join();
     command_prompt.join();
 
 }
 void ChatServer::stop() {
-    log("Stopping server!");
+    log("Stopping server!!!");
     server.stop_listening();
-
-//    for (const auto& conn : connection_list){
-//        log("X");
-//        server.close(conn, websocketpp::close::status::going_away, "Server is shutting down.");
-//    }
+    for (auto it : connections) {
+        websocketpp::lib::error_code error;
+        server.close(it, websocketpp::close::status::going_away, "Server shutting down.", error);
+        if (error){
+            std::cout << "Error in stop(): " << error.message() << std::endl;
+        }
+    }
+    server.stop();
 }
 void ChatServer::log(const std::string& message) {
     server.get_alog().write(LogLevel::app, message);
 }
 
-int ChatServer::get_total_connections() const {
-    return 0;
-}
 
 void ChatServer::send_message(const string &msg) {
 
@@ -57,32 +57,31 @@ void ChatServer::send_message(const string &msg) {
 
 void ChatServer::broadcast_message(const string &msg) {
     log("[broadcast_message] " + msg);
-//    for (const auto& conn : connection_list){
-//        server.send(conn, msg, websocketpp::frame::opcode::text);
+//    for (const auto& connection : connections){
+//        server.send(connection, msg, websocketpp::frame::opcode::text);
 //    }
 }
 
-void ChatServer::on_successful_new_connection(const Connection& connection) {
-//    connection_list.insert(connection);
+void ChatServer::on_successful_new_connection(Connection connection) {
+    connections.insert(connection);
+    log("New successful connection!");
 //    string client = server.get_connection()->get_remote_endpoint();
-    log("New connection from! ");
-//    string msg = "A user joined the chatroom. Total online users: " + to_string(connection_list.size());
-//    broadcast_message("msg");
+//    string msg = "A user joined the chatroom. Total online users: " + to_string(connections.size());
+//    broadcast_message(msg);
 }
 
-void ChatServer::on_connection_failed(const Connection& connection) {
+void ChatServer::on_connection_failed(Connection connection) {
 //    string client = server.get_connection()->get_remote_endpoint();
-    server.close(connection, websocketpp::frame::opcode::text, "Closing socket.");
+//    server.close(connection, websocketpp::frame::opcode::text, "Closing socket.");
     log("Connection failed for client!");
 }
 
-void ChatServer::on_close_connection(const Connection& connection) {
-
+void ChatServer::on_close_connection(Connection connection) {
+    connections.erase(connection);
     log("Connection closed.");
-//    connection_list.erase(connection);
 }
 
-void ChatServer::on_message(const Connection& connection, const Message& message) {
+void ChatServer::on_message(Connection connection, const Message& message) {
     log(message->get_payload());
 }
 

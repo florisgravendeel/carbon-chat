@@ -30,6 +30,7 @@ string prompt(const string& question, vector<string> answers, bool check_answers
 int main(int argc, char** argv) {
 
     cout << Color::FG_YELLOW << "Starting up Carbon-Chat" << Color::FG_DEFAULT << endl;
+    cout << "Leave blank to use the default [value]" << endl;
     bool selected_server = prompt("Do you want to host or join a chatserver?",
                          {"host", "join"}, true) == "host";
 

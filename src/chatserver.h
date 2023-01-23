@@ -31,7 +31,6 @@ public:
     void start();
     void stop();
 private:
-    int get_total_connections() const;
 
     /// Sends a message to a single connection.
     void send_message(const std::string& msg);
@@ -41,18 +40,18 @@ private:
 
     /// Either open or fail will be called for each connection. Never both. All connections that
     /// begin with an open handler call will also have a matching close handler call when the connection ends.
-    void on_successful_new_connection(const Connection& connection);
+    void on_successful_new_connection(Connection connection);
 
     /// Either open or fail will be called for each connection. Never both.
     /// Connections that fail will never have a close handler called.
-    void on_connection_failed(const Connection& connection);
+    void on_connection_failed(Connection connection);
 
     /// Close will be called exactly once for every connection that open was called for.
     /// Close is not called for failed connections.
-    void on_close_connection(const Connection& connection);
+    void on_close_connection(Connection connection);
 
     /// On data message received from WebSocket. This is method is called by a handler.
-    void on_message(const Connection& connection, const Message& message);
+    void on_message(Connection connection, const Message& message);
 
     /// WebSocket++ has the capability of logging events during the lifetime of the connections that it processes.
     /// Each endpoint has two independent logging interfaces that are used by all connections created by that endpoint.
@@ -65,7 +64,7 @@ private:
     Server server;
     std::string uri;
     int port;
-//    ConnectionList connection_list;
+    ConnectionList connections;
 };
 
 #endif //CARBONCHAT_CHATSERVER_H
