@@ -18,13 +18,12 @@
 //#include "set"
 
 typedef websocketpp::server<websocketpp::config::asio> Server;
-
 typedef websocketpp::connection_hdl Connection;
 typedef Server::message_ptr Message;
 typedef std::set<Connection,std::owner_less<Connection>> ConnectionList;
-//typedef websocketpp::log::alevel LogLevel;
-//typedef websocketpp::lib::thread Thread;
-//typedef websocketpp::lib::error_code ErrorCode;
+typedef websocketpp::log::alevel LogLevel;
+typedef websocketpp::lib::thread Thread;
+typedef websocketpp::lib::error_code ErrorCode;
 
 /**
  * Almost all documentation has been copied from: https://docs.websocketpp.org/reference_8handlers.html
