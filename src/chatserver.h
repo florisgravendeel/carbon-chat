@@ -5,35 +5,39 @@
 #ifndef CARBONCHAT_CHATSERVER_H
 #define CARBONCHAT_CHATSERVER_H
 
-//#include "chatserver.h"
+#include <set>
 #include <websocketpp/config/asio_no_tls.hpp>
 #include <websocketpp/server.hpp>
-#include <websocketpp/endpoint.hpp>
 #include <websocketpp/common/thread.hpp>
-#include <asio/io_service.hpp>
-#include "set"
+//#include "chatserver.h"
+//#include <websocketpp/config/asio_no_tls.hpp>
+//#include <websocketpp/server.hpp>
+//#include <websocketpp/endpoint.hpp>
+//#include <websocketpp/common/thread.hpp>
+//#include <asio/io_service.hpp>
+//#include "set"
 
 typedef websocketpp::server<websocketpp::config::asio> Server;
 
 typedef websocketpp::connection_hdl Connection;
 typedef Server::message_ptr Message;
 typedef std::set<Connection,std::owner_less<Connection>> ConnectionList;
-typedef websocketpp::log::alevel LogLevel;
-typedef websocketpp::lib::thread Thread;
-typedef websocketpp::lib::error_code ErrorCode;
+//typedef websocketpp::log::alevel LogLevel;
+//typedef websocketpp::lib::thread Thread;
+//typedef websocketpp::lib::error_code ErrorCode;
 
 /**
  * Almost all documentation has been copied from: https://docs.websocketpp.org/reference_8handlers.html
  */
-class ChatServer2 {
+class ChatServer {
 public:
-    ChatServer2(int port);
+    ChatServer(int port);
     void start();
     void stop();
 private:
 
     /// Sends a message to a single connection.
-    void send_message(const std::string& msg);
+    void send_message(Connection connection, const std::string& msg);
 
     /// Sends a message to all clients in the network.
     void broadcast_message(const std::string& msg);
@@ -51,7 +55,7 @@ private:
     void on_close_connection(Connection connection);
 
     /// On data message received from WebSocket. This is method is called by a handler.
-    void on_message_received(Connection connection, const Message& message);
+    void on_message_received(Connection connection, Message message);
 
     /// WebSocket++ has the capability of logging events during the lifetime of the connections that it processes.
     /// Each endpoint has two independent logging interfaces that are used by all connections created by that endpoint.

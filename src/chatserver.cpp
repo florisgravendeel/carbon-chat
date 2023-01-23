@@ -1,87 +1,113 @@
-#include <set>
-#include <websocketpp/config/asio_no_tls.hpp>
-#include <websocketpp/server.hpp>
-#include <websocketpp/common/thread.hpp>
+#include "chatserver.h"
 
-typedef websocketpp::server<websocketpp::config::asio> server;
+ChatServer::ChatServer(int port) {
+    ChatServer::port = port;
+    uri = "ws://localhost:" + std::to_string(port);
+    server.init_asio();
 
-using websocketpp::connection_hdl;
-using websocketpp::lib::placeholders::_1;
-using websocketpp::lib::placeholders::_2;
-using websocketpp::lib::bind;
+    server.set_access_channels(websocketpp::log::alevel::all);
+    server.clear_access_channels(websocketpp::log::alevel::frame_payload);
 
-class Chatserver {
-public:
-    Chatserver() {
-        m_server.init_asio();
+    using websocketpp::lib::bind;
+    using websocketpp::lib::placeholders::_1;
+    using websocketpp::lib::placeholders::_2;
 
-        m_server.set_access_channels(websocketpp::log::alevel::all);
-        m_server.clear_access_channels(websocketpp::log::alevel::frame_payload);
+    server.set_open_handler(bind(&ChatServer::on_successful_new_connection, this, _1));
+    server.set_close_handler(bind(&ChatServer::on_close_connection, this, _1));
+    server.set_fail_handler(bind(&ChatServer::on_connection_failed, this, _1));
+    server.set_message_handler(bind(&ChatServer::on_message_received, this, _1, _2));
+}
 
-        m_server.set_open_handler(bind(&Chatserver::on_successful_new_connection,this,::_1));
-        m_server.set_close_handler(bind(&Chatserver::on_close_connection,this,::_1));
-        m_server.set_fail_handler(bind(&Chatserver::on_connection_failed, this,::_1));
-        m_server.set_message_handler(bind(&Chatserver::on_message_received,this,::_1,::_2));
+void ChatServer::start() {
+    websocketpp::lib::thread command_prompt_thread(&ChatServer::open_command_prompt, this);
+    websocketpp::lib::thread server_thread(&Server::run, &server);
+    server.listen(port);
+    server.start_accept();
+    server.run();
+    server_thread.join();
+    command_prompt_thread.join();
+}
+
+void ChatServer::stop() {
+    server.stop_listening();
+    for (auto it: connections) {
+        websocketpp::lib::error_code error;
+        server.close(it, websocketpp::close::status::going_away, "Server shutting down.", error);
+        if (error) {
+            std::cout << "Error stop(): " << error.message() << std::endl;
+        }
     }
+    server.stop();
+}
 
-    void on_successful_new_connection(connection_hdl hdl) {
-        m_connections.insert(hdl);
+void ChatServer::send_message(Connection connection, const std::string &msg) {
+
+}
+
+void ChatServer::broadcast_message(const std::string &msg) {
+
+}
+
+void ChatServer::on_successful_new_connection(Connection connection) {
+    connections.insert(connection);
+}
+
+void ChatServer::on_connection_failed(Connection connection) {
+     std::cout << "Connection failed for client." << std::endl; // TODO: use log
+}
+
+void ChatServer::on_close_connection(Connection connection) {
+    connections.erase(connection);
+}
+
+void ChatServer::on_message_received(Connection connection, Message message) {
+    if (message->get_payload() == "User: stopserver") {
+        stop();
+        return;
     }
-
-    void on_close_connection(connection_hdl hdl) {
-        m_connections.erase(hdl);
+    for (auto it: connections) {
+        server.send(it, message);
     }
+}
 
-    void on_connection_failed(connection_hdl hdl){
-        std::cout << "Connection failed for client." << std::endl;
-    }
+void ChatServer::log(const std::string &message) {
 
-    void on_message_received(connection_hdl hdl, server::message_ptr msg) {
-        if (msg->get_payload() == "User: stopserver"){
+}
+
+void ChatServer::open_command_prompt() {
+    std::string input;
+    while (true) {
+        //Read user input from stdin
+        std::getline(std::cin, input);
+        if (input == "/stop") {
             stop();
-            return;
-        }
-        for (auto it : m_connections) {
-            m_server.send(it,msg);
+            break;
         }
     }
-    void stop(){
-        m_server.stop_listening();
-        for (auto it : m_connections) {
-            websocketpp::lib::error_code error;
-            m_server.close(it, websocketpp::close::status::going_away, "Server shutting down.", error);
-            if (error){
-                std::cout << "Error stop(): " << error.message() << std::endl;
-            }
-        }
-        m_server.stop();
-    }
+}
+//#include <set>
+//#include <websocketpp/config/asio_no_tls.hpp>
+//#include <websocketpp/server.hpp>
+//#include <websocketpp/common/thread.hpp>
 
-    void start() {
-        websocketpp::lib::thread command_prompt_thread(&Chatserver::open_command_prompt, this);
-        websocketpp::lib::thread server_thread(&server::run, &m_server);
-        m_server.listen(9002);
-        m_server.start_accept();
-        m_server.run();
-        server_thread.join();
-        command_prompt_thread.join();
-    }
+//typedef websocketpp::server<websocketpp::config::asio> server;
+//using websocketpp::connection_hdl;
 
-    void open_command_prompt() {
-        std::string input;
-        while (true)
-        {
-            //Read user input from stdin
-            std::getline(std::cin, input);
-            if (input == "/stop"){
-                stop();
-                break;
-            }
-        }
-    }
-private:
-    typedef std::set<connection_hdl,std::owner_less<connection_hdl>> con_list;
+//class Chatserver {
+//public:
 
-    server m_server;
-    con_list m_connections;
-};
+//
+
+//
+//
+
+//
+
+//
+
+//private:
+//    typedef std::set<connection_hdl,std::owner_less<connection_hdl>> con_list;
+//
+//    server m_server;
+//    con_list m_connections;
+//};
