@@ -57,8 +57,8 @@ private:
     websocketpp::lib::mutex mutex;
     bool connection_open;
     bool connection_closed;
-    string server_uri;
-    string username;
+    std::string server_uri;
+    std::string username;
 };
 
 

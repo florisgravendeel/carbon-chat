@@ -5,7 +5,7 @@
 #ifndef CARBONCHAT_CHATSERVER_H
 #define CARBONCHAT_CHATSERVER_H
 
-#include "chatserver.h"
+//#include "chatserver.h"
 #include <websocketpp/config/asio_no_tls.hpp>
 #include <websocketpp/server.hpp>
 #include <websocketpp/endpoint.hpp>
@@ -25,9 +25,9 @@ typedef websocketpp::lib::error_code ErrorCode;
 /**
  * Almost all documentation has been copied from: https://docs.websocketpp.org/reference_8handlers.html
  */
-class ChatServer {
+class ChatServer2 {
 public:
-    ChatServer(int port);
+    ChatServer2(int port);
     void start();
     void stop();
 private:
