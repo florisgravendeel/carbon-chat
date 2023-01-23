@@ -20,17 +20,23 @@ ChatServer::ChatServer(int port) {
     server.set_close_handler(bind(&ChatServer::on_close_connection, this, _1));
     server.set_fail_handler(bind(&ChatServer::on_connection_failed, this, _1));
     server.set_message_handler(bind(&ChatServer::on_message_received, this, _1, _2));
+
+//    Thread command_prompt_thread(&ChatServer::open_command_prompt, this);
+//    Thread server_thread(&ChatServer::start, this);
+//    server_thread.join();
+    start();
+//    command_prompt_thread.join();
 }
 
 void ChatServer::start() {
     log("Starting server on " + uri);
-    Thread command_prompt_thread(&ChatServer::open_command_prompt, this);
-    Thread server_thread(&Server::run, &server);
+//    Thread command_prompt_thread(&ChatServer::open_command_prompt, this);
+//    Thread server_thread(&Server::run, &server);
     server.listen(port);
     server.start_accept();
     server.run();
-    server_thread.join();
-    command_prompt_thread.join();
+//    server_thread.join();
+//    command_prompt_thread.join();
 }
 
 void ChatServer::stop() {
@@ -47,16 +53,25 @@ void ChatServer::stop() {
 }
 
 void ChatServer::send_message(Connection connection, const std::string &msg) {
-
+    ErrorCode error;
+    server.send(connection, msg, websocketpp::frame::opcode::text);
+    if (error){
+        log("Error sending message: " + error.message());
+    }
 }
 
 void ChatServer::broadcast_message(const std::string &msg) {
-
+    log("[broadcast_message] " + msg);
+    for (auto connection : connections){
+        send_message(connection, msg);
+    }
 }
 
 void ChatServer::on_successful_new_connection(Connection connection) {
     log("New successful connection for client!");
     connections.insert(connection);
+    std::string msg = "A user joined the chatroom. Total online users: " + std::to_string(connections.size());
+    broadcast_message(msg);
 }
 
 void ChatServer::on_connection_failed(Connection connection) {
@@ -69,6 +84,10 @@ void ChatServer::on_close_connection(Connection connection) {
 }
 
 void ChatServer::on_message_received(Connection connection, Message message) {
+    if (message->get_payload() == "User: stopserver"){
+        stop();
+    } else
+
     for (auto it: connections) {
         server.send(it, message);
     }
