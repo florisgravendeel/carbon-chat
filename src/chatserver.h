@@ -51,7 +51,7 @@ private:
     void on_close_connection(Connection connection);
 
     /// On data message received from WebSocket. This is method is called by a handler.
-    void on_message(Connection connection, const Message& message);
+    void on_message_received(Connection connection, const Message& message);
 
     /// WebSocket++ has the capability of logging events during the lifetime of the connections that it processes.
     /// Each endpoint has two independent logging interfaces that are used by all connections created by that endpoint.

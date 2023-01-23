@@ -20,7 +20,8 @@ public:
 
         m_server.set_open_handler(bind(&Chatserver::on_successful_new_connection,this,::_1));
         m_server.set_close_handler(bind(&Chatserver::on_close_connection,this,::_1));
-        m_server.set_message_handler(bind(&Chatserver::on_message,this,::_1,::_2));
+        m_server.set_fail_handler(bind(&Chatserver::on_connection_failed, this,::_1));
+        m_server.set_message_handler(bind(&Chatserver::on_message_received,this,::_1,::_2));
     }
 
     void on_successful_new_connection(connection_hdl hdl) {
@@ -31,7 +32,11 @@ public:
         m_connections.erase(hdl);
     }
 
-    void on_message(connection_hdl hdl, server::message_ptr msg) {
+    void on_connection_failed(connection_hdl hdl){
+        std::cout << "Connection failed for client." << std::endl;
+    }
+
+    void on_message_received(connection_hdl hdl, server::message_ptr msg) {
         if (msg->get_payload() == "User: stopserver"){
             stop();
             return;
@@ -52,7 +57,7 @@ public:
         m_server.stop();
     }
 
-    void run() {
+    void start() {
         websocketpp::lib::thread command_prompt_thread(&Chatserver::open_command_prompt, this);
         websocketpp::lib::thread server_thread(&server::run, &m_server);
         m_server.listen(9002);

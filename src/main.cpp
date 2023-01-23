@@ -43,7 +43,7 @@ int main(int argc, char** argv) {
         cout << Color::FG_YELLOW << "Launching server.\nTo stop the server. Use command: " << Color::BOLD << "/stop"
              << Color::RESET_ALL_ATTRIBUTES << endl;
         Chatserver server;
-        server.run();
+        server.start();
     } else { // Start client
         username = prompt("Please enter a username", {"User"}, false);
         cout << "Hi " << Color::FG_CYAN << username << Color::FG_DEFAULT << ". ";
