@@ -46,6 +46,7 @@ int main(int argc, char** argv) {
 
         // Create an instance of Chatserver (the server starts automatically)
         ChatServer server(port);
+        server.start();
     } else { // Else start the client
         username = prompt("Please enter a username", {"User"}, false);
         cout << "Hi " << Color::FG_CYAN << username << Color::FG_DEFAULT << ". ";

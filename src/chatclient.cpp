@@ -84,6 +84,11 @@ void ChatClient::on_close_connection(const Connection &connection) {
 }
 
 void ChatClient::on_message_received(const Connection &connection, const Message &message) {
+    if (message->get_payload() == "/stop"){ // If the server sends the /stop command, stop the client.
+        log("Chatserver is going offline.", LogType::Info);
+        stop();
+        return;
+    }
     log(message->get_payload(), LogType::Chat);
 }
 

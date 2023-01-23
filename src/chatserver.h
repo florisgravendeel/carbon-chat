@@ -8,19 +8,12 @@
 #include <set>
 #include <websocketpp/config/asio_no_tls.hpp>
 #include <websocketpp/server.hpp>
-#include <websocketpp/common/thread.hpp>
-//#include "chatserver.h"
-//#include <websocketpp/config/asio_no_tls.hpp>
-//#include <websocketpp/server.hpp>
-//#include <websocketpp/endpoint.hpp>
-//#include <websocketpp/common/thread.hpp>
-//#include <asio/io_service.hpp>
-//#include "set"
 
 typedef websocketpp::server<websocketpp::config::asio> Server;
 typedef websocketpp::connection_hdl Connection;
 typedef Server::message_ptr Message;
 typedef std::set<Connection,std::owner_less<Connection>> ConnectionList;
+//typedef std::map<websocketpp::connection_hdl, WebSocketPtr, std::owner_less<websocketpp::connection_hdl>> Sockets;
 typedef websocketpp::log::alevel LogLevel;
 typedef websocketpp::lib::thread Thread;
 typedef websocketpp::lib::error_code ErrorCode;
@@ -33,6 +26,7 @@ public:
     ChatServer(int port);
     void start();
     void stop();
+
 private:
 
     /// Sends a message to a single connection.
@@ -43,7 +37,7 @@ private:
 
     /// Either open or fail will be called for each connection. Never both. All connections that
     /// begin with an open handler call will also have a matching close handler call when the connection ends.
-    void on_successful_new_connection(Connection connection);
+    void on_successful_new_connection(const Connection& connection);
 
     /// Either open or fail will be called for each connection. Never both.
     /// Connections that fail will never have a close handler called.
@@ -51,10 +45,10 @@ private:
 
     /// Close will be called exactly once for every connection that open was called for.
     /// Close is not called for failed connections.
-    void on_close_connection(Connection connection);
+    void on_close_connection(const Connection& connection);
 
     /// On data message received from WebSocket. This is method is called by a handler.
-    void on_message_received(Connection connection, Message message);
+    void on_message_received(const Connection& connection, Message message);
 
     /// WebSocket++ has the capability of logging events during the lifetime of the connections that it processes.
     /// Each endpoint has two independent logging interfaces that are used by all connections created by that endpoint.
@@ -68,6 +62,7 @@ private:
     std::string uri;
     int port;
     ConnectionList connections;
+    bool initiating_shutdown;
 };
 
 #endif //CARBONCHAT_CHATSERVER_H
