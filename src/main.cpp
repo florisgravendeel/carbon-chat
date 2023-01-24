@@ -39,7 +39,6 @@ void server_command_line_interface() {
             break;
         }
     }
-    std::cout << "Closing Server CLI." << std::endl;
 }
 
 int main(int argc, char** argv) {
@@ -60,8 +59,10 @@ int main(int argc, char** argv) {
              << Color::RESET_ALL_ATTRIBUTES << endl;
 
         // Create an instance of Chatserver (the server starts automatically)
+        thread cli(&server_command_line_interface);
         ChatServer server(port);
         server.start();
+        cli.join();
     } else { // Else start the client
         username = prompt("Please enter a username", {"User"}, false);
         cout << "Hi " << Color::FG_CYAN << username << Color::FG_DEFAULT << ". ";
@@ -70,10 +71,9 @@ int main(int argc, char** argv) {
 
         cout << Color::FG_YELLOW << "Launching client.\nTo stop the client. Use command: " << Color::BOLD << "/stop"
              << Color::RESET_ALL_ATTRIBUTES << endl;
-        thread cli(&server_command_line_interface);
-        cli.join();
-//        ChatClient client(ip, port, username, false);
-//        client.start();
+
+        ChatClient client(ip, port, username, false);
+        client.start();
     }
 
 
