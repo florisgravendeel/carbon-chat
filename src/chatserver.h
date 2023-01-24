@@ -9,7 +9,6 @@
 #include <websocketpp/config/asio_no_tls.hpp>
 #include <websocketpp/server.hpp>
 #include <websocketpp/common/thread.hpp>
-#include <asio/io_service.hpp>
 
 typedef websocketpp::server<websocketpp::config::asio> Server;
 typedef websocketpp::connection_hdl Connection;

@@ -5,6 +5,9 @@
 #ifndef CARBONCHAT_SERVERCOMMAND_H
 #define CARBONCHAT_SERVERCOMMAND_H
 
+#define STOP_COMMAND "/stop"
+#define UNIT_TEST_COMMAND "/unit-test"
+
 #include <websocketpp/config/asio_no_tls_client.hpp>
 #include <websocketpp/client.hpp>
 

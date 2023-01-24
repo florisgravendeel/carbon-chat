@@ -3,19 +3,19 @@
 //
 #define STOP_COMMAND "/stop"
 #include "chatserver.h"
-#include "servercommand.cpp"
+#include "servercommand.h"
 
 ChatServer::ChatServer(int port) {
     ChatServer::port = port;
     uri = "ws://localhost:" + std::to_string(port);
     initiating_shutdown = false;
 
+    // Initialize Asio
+    server.init_asio();
+
     // Set logging settings to all except for frame level (too noisy)
     server.set_access_channels(LogLevel::app);
     server.clear_access_channels(LogLevel::frame_payload);
-
-    // Initialize Asio
-    server.init_asio();
 
     using websocketpp::lib::bind;
     using websocketpp::lib::placeholders::_1;
@@ -26,16 +26,15 @@ ChatServer::ChatServer(int port) {
     server.set_close_handler(bind(&ChatServer::on_close_connection, this, _1));
     server.set_fail_handler(bind(&ChatServer::on_connection_failed, this, _1));
     server.set_message_handler(bind(&ChatServer::on_message_received, this, _1, _2));
-
 }
 
 void ChatServer::start() {
     log("Starting server on " + uri);
-    Thread server_thread(&Server::run, &server);
-    server.listen(9002);
+//    Thread server_thread(&Server::run, &server);
+    server.listen(port);
     server.start_accept();
     server.run();
-    server_thread.join();
+//    server_thread.join();
 }
 
 void ChatServer::stop() {
@@ -93,8 +92,8 @@ void ChatServer::on_close_connection(const Connection& connection) {
 }
 
 void ChatServer::on_message_received(const Connection& connection, const Message& message) {
-    log("[received] " + message->get_payload());
-    if (message->get_payload() == "User: /stopserver"){
+    log("[on_message_received] " + message->get_payload());
+    if (message->get_payload() == STOP_COMMAND){
         stop();
         return;
     }

@@ -3,6 +3,7 @@
 //
 #include "chatserver.cpp"
 #include "chatclient.cpp"
+#include "servercommand.cpp"
 #include "algorithm"
 
 using namespace std;
@@ -69,10 +70,10 @@ int main(int argc, char** argv) {
 
         cout << Color::FG_YELLOW << "Launching client.\nTo stop the client. Use command: " << Color::BOLD << "/stop"
              << Color::RESET_ALL_ATTRIBUTES << endl;
-//        thread cli(&server_command_line_interface);
-//        cli.join();
-        ChatClient client(ip, port, username, false);
-        client.start();
+        thread cli(&server_command_line_interface);
+        cli.join();
+//        ChatClient client(ip, port, username, false);
+//        client.start();
     }
 
 
