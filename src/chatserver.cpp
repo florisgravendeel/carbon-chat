@@ -38,7 +38,7 @@ void ChatServer::start() {
 }
 
 void ChatServer::stop() {
-    log("Server shutting down");
+    broadcast_message(SERVER_GOING_OFFLINE_MSG);
 
     initiating_shutdown = true; // See -> on_close_connection
     log("Total connections: " + std::to_string(connections.size()));
@@ -47,7 +47,7 @@ void ChatServer::stop() {
     for (const auto& connection: connections) {
         ErrorCode error;
 
-        server.close(connection, websocketpp::close::status::going_away, "Server shutting down.", error);
+        server.close(connection, websocketpp::close::status::going_away, SERVER_GOING_OFFLINE_MSG, error);
         if (error) {
             std::cout << "Error stop(): " << error.message() << std::endl;
         }

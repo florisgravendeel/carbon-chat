@@ -13,6 +13,7 @@
 // Substring used for clients to recognize the join message.
 #define JOIN_MSG "joined the chat. Total online users:"
 
+#define SERVER_GOING_OFFLINE_MSG "Chatserver is going offline." // Announcement for when the server is shutting down.
 #define UNIT_TEST_COMMAND "/unit-test"
 
 #include <websocketpp/config/asio_no_tls_client.hpp>

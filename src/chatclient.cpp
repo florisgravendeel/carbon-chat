@@ -87,17 +87,14 @@ void ChatClient::on_close_connection(const Connection &connection) {
 }
 
 void ChatClient::on_message_received(const Connection &connection, const Message &message) {
-//    if (message->get_payload() == "/stop"){ // If the server sends the /stop command, stop the client.
-//        log("Chatserver is going offline.", LogType::Info);
-//        stop();
-//        return; TODO: not needed?
-//    }
     std::string msg = message->get_payload();
     if (boost::algorithm::contains(msg, JOIN_MSG)) {
         log(msg, LogType::UserJoinedServer);
-        return;
-    } else
-    log(msg, LogType::Chat);
+    } else if (msg == SERVER_GOING_OFFLINE_MSG){
+        log(msg, LogType::ServerAnnouncement);
+    } else {
+        log(msg, LogType::Chat);
+    }
 }
 
 void sleep() {
@@ -181,7 +178,11 @@ void ChatClient::log(const string &message, ChatClient::LogType logType) {
                 cout << Color::FG_DEFAULT << endl;
                 break;
             }
+            case ServerAnnouncement:
+            {
+                cout << Color::FG_LIGHT_YELLOW << message << Color::FG_DEFAULT << endl;
                 break;
+            }
             case Error:
                 cout << Color::FG_RED << message << Color::FG_DEFAULT << endl;
                 break;

@@ -26,6 +26,12 @@ public:
     virtual void start();
 
     virtual void stop();
+
+    enum LogType { Info, UserJoinedServer, Chat, Error, Success, ServerAnnouncement};
+    /// WebSocket++ has the capability of logging events during the lifetime of the connections that it processes.
+    /// Each endpoint has two independent logging interfaces that are used by all connections created by that endpoint.
+    /// The method uses the an access interface for application specific logs.
+    static void log(const std::string& message, LogType logType);
 private:
 
     /// Either open or fail will be called for each connection. Never both. All connections that
@@ -44,13 +50,8 @@ private:
     void on_message_received(const Connection& connection, const Message& message);
 
     /// The chat prompt allows the user to type in and send messages to all the other users in the chat.
-    void open_chat_prompt();
 
-    enum LogType { Info, UserJoinedServer, Chat, Error, Success};
-    /// WebSocket++ has the capability of logging events during the lifetime of the connections that it processes.
-    /// Each endpoint has two independent logging interfaces that are used by all connections created by that endpoint.
-    /// The method uses the an access interface for application specific logs.
-    static void log(const std::string& message, LogType logType);
+
 
     Client client;
     Connection connection;
