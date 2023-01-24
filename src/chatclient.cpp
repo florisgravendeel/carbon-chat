@@ -93,9 +93,7 @@ void ChatClient::on_message_received(const Connection &connection, const Message
 //        return; TODO: not needed?
 //    }
     std::string msg = message->get_payload();
-    if (msg.rfind(JOIN_MSG, 0) == 0) {
-        string remove = JOIN_MSG; // removes Server: %JOINMSG% from the message
-        msg = msg.erase(0, remove.size());
+    if (boost::algorithm::contains(msg, JOIN_MSG)) {
         log(msg, LogType::UserJoinedServer);
         return;
     } else
@@ -136,8 +134,8 @@ void ChatClient::open_chat_prompt(){
             stop();
             break;
         }
-        ErrorCode error;
 
+        ErrorCode error;
         client.send(connection, username + ": " + input, websocketpp::frame::opcode::text, error);
         if (error) {
             log("Error sending message: " + error.message(), LogType::Error);
@@ -159,10 +157,12 @@ void ChatClient::log(const string &message, ChatClient::LogType logType) {
                 auto player_count = message.back();
                 std::string join_msg = message;
                 join_msg.pop_back();
-                cout << Color::FG_LIGHT_YELLOW << join_msg << Color::FG_MAGENTA << player_count << endl;
+                cout << Color::FG_LIGHT_YELLOW << join_msg << Color::FG_MAGENTA << player_count
+                << Color::FG_DEFAULT << endl;
                 break;
             }
-            case Chat: {
+            case Chat:
+            {
                 char *msg = new char[message.length() + 1];
                 strcpy(msg, message.c_str());
 
@@ -171,7 +171,7 @@ void ChatClient::log(const string &message, ChatClient::LogType logType) {
                 short i = 0;
                 while (ptr != nullptr) {
                     if (i == 0) {
-                        cout << Color::FG_BLUE << ptr << ":" << Color::FG_LIGHT_BLUE;
+                        cout << Color::FG_CYAN << ptr << ":" << Color::FG_LIGHT_CYAN;
                     } else {
                         cout << ptr;
                     }
@@ -181,6 +181,7 @@ void ChatClient::log(const string &message, ChatClient::LogType logType) {
                 cout << Color::FG_DEFAULT << endl;
                 break;
             }
+                break;
             case Error:
                 cout << Color::FG_RED << message << Color::FG_DEFAULT << endl;
                 break;

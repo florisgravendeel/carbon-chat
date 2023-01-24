@@ -26,15 +26,12 @@ namespace Color {
         FG_LIGHT_GREEN  = 92,
         FG_LIGHT_YELLOW = 93,
         FG_LIGHT_BLUE   = 94,
+        FG_LIGHT_CYAN = 96,
     };
     std::ostream& operator<<(std::ostream& os, Code code) {
         return os << "\033[" << static_cast<int>(code) << "m";
     }
 
-
-//
-//
-//
 //    cout << Color::FG_LIGHT_YELLOW << "User joined the chat. Total online users: " << Color::FG_MAGENTA << "2" << endl;
 //    cout << Color::FG_BLUE << "Bob: " << Color::FG_LIGHT_BLUE << "How was your day?" << endl;
 }
