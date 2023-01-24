@@ -71,11 +71,11 @@ include_directories(SYSTEM "include/json/dist")
 # Compile jsoncpp from source
 add_library(jsoncpp STATIC include/json/dist/jsoncpp.cpp)
 
-# Build the server executable
-add_executable(server src/main.cpp)
-target_link_libraries(server jsoncpp ${Boost_LIBRARIES})
+# Build the executable
+add_executable(carbonchat src/main.cpp)
+target_link_libraries(carbonchat jsoncpp ${Boost_LIBRARIES})
 
-set_target_properties(server PROPERTIES
+set_target_properties(carbonchat PROPERTIES
         ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
         LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
