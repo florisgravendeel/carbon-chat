@@ -9,6 +9,7 @@
 using namespace std;
 #define PORT_NUMBER 9002
 
+/// Simple prompt mechanism. This allows us to ask questions to the user running program.
 string prompt(const string& question, vector<string> answers, bool check_answers) {
     cout << question << " [" << Color::FG_LIGHT_GRAY << answers[0] << Color::FG_DEFAULT << "]: ";
     string input;
@@ -28,6 +29,8 @@ string prompt(const string& question, vector<string> answers, bool check_answers
         return prompt(question, answers, check_answers);
     }
 }
+
+/// Opens the command prompt for the server. This allows the user to send commands to the server.
 void server_command_line_interface() {
     std::string input;
     while (true) {
@@ -75,8 +78,6 @@ int main(int argc, char** argv) {
         ChatClient client(ip, port, username, false);
         client.start();
     }
-
-
     return 0;
 }
 

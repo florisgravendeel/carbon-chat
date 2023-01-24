@@ -25,7 +25,7 @@ void ServerCommand::on_successful_new_connection(const Connection &connection) {
     //":" + permissions_key
     client.send(connection, command,
                 websocketpp::frame::opcode::text);
-//    disconnect(connection);
+
 }
 
 void ServerCommand::execute() {

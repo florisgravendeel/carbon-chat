@@ -30,11 +30,9 @@ ChatServer::ChatServer(int port) {
 
 void ChatServer::start() {
     log("Starting server on " + uri);
-//    Thread server_thread(&Server::run, &server);
     server.listen(port);
     server.start_accept();
     server.run();
-//    server_thread.join();
 }
 
 void ChatServer::stop() {
