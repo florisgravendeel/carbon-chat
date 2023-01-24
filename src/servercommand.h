@@ -41,7 +41,6 @@ private:
     std::string command;
     std::string permissions_key;
     std::string server_uri;
-    bool command_executed;
 };
 
 

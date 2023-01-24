@@ -6,7 +6,6 @@
 ServerCommand::ServerCommand(int port, const std::string& command, const std::string& permissions_key) {
     ServerCommand::command = command;
     ServerCommand::permissions_key = permissions_key;
-    ServerCommand::command_executed = false;
     server_uri = "ws://localhost:" + std::to_string(port);
 
     // Disable logging completely
