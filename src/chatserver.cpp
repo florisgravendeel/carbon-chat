@@ -1,9 +1,9 @@
+//
+// Created by Floris Gravendeel on 17/01/2023.
+//
+#define STOP_COMMAND "/stop"
 #include "chatserver.h"
-
-#include <utility>
-
-#include "boost/iostreams/stream.hpp"
-#include "boost/iostreams/device/null.hpp"
+#include "servercommand.cpp"
 
 ChatServer::ChatServer(int port) {
     ChatServer::port = port;
@@ -26,14 +26,16 @@ ChatServer::ChatServer(int port) {
     server.set_close_handler(bind(&ChatServer::on_close_connection, this, _1));
     server.set_fail_handler(bind(&ChatServer::on_connection_failed, this, _1));
     server.set_message_handler(bind(&ChatServer::on_message_received, this, _1, _2));
-}
 
+}
 
 void ChatServer::start() {
     log("Starting server on " + uri);
-    server.listen(port);
+    Thread server_thread(&Server::run, &server);
+    server.listen(9002);
     server.start_accept();
     server.run();
+    server_thread.join();
 }
 
 void ChatServer::stop() {
@@ -91,9 +93,11 @@ void ChatServer::on_close_connection(const Connection& connection) {
 }
 
 void ChatServer::on_message_received(const Connection& connection, const Message& message) {
-    if (message->get_payload() == "User: /stopserver"){ //TODO: fix this command
+    log("[received] " + message->get_payload());
+    if (message->get_payload() == "User: /stopserver"){
         stop();
-    } else
+        return;
+    }
 
     for (const auto& it: connections) {
         server.send(it, message);
@@ -104,15 +108,3 @@ void ChatServer::log(const std::string &message) {
     server.get_alog().write(LogLevel::app, message);
 }
 
-void ChatServer::open_command_prompt() {
-    std::string input;
-    while (true) {
-        //Read user input from stdin
-        std::getline(std::cin, input);
-        if (input == "/stop") {
-            stop();
-            break;
-        }
-    }
-    std::cout << "Closing command prompt." << std::endl;
-}

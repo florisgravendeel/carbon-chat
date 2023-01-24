@@ -53,7 +53,7 @@ private:
     static void log(const std::string& message, LogType logType);
 
     Client client;
-    websocketpp::connection_hdl connection;
+    Connection connection;
     websocketpp::lib::mutex mutex;
     bool connection_open;
     bool connection_closed;

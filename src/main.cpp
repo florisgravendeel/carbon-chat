@@ -4,6 +4,7 @@
 #include "chatserver.cpp"
 #include "chatclient.cpp"
 #include "algorithm"
+
 using namespace std;
 #define PORT_NUMBER 9002
 
@@ -25,6 +26,19 @@ string prompt(const string& question, vector<string> answers, bool check_answers
         cout << endl;
         return prompt(question, answers, check_answers);
     }
+}
+void server_command_line_interface() {
+    std::string input;
+    while (true) {
+        //Read user input from stdin
+        std::getline(std::cin, input);
+        if (input == STOP_COMMAND) {
+            ServerCommand stopCommand(PORT_NUMBER, STOP_COMMAND, "AKEY");
+            stopCommand.execute();
+            break;
+        }
+    }
+    std::cout << "Closing Server CLI." << std::endl;
 }
 
 int main(int argc, char** argv) {
@@ -55,6 +69,8 @@ int main(int argc, char** argv) {
 
         cout << Color::FG_YELLOW << "Launching client.\nTo stop the client. Use command: " << Color::BOLD << "/stop"
              << Color::RESET_ALL_ATTRIBUTES << endl;
+//        thread cli(&server_command_line_interface);
+//        cli.join();
         ChatClient client(ip, port, username, false);
         client.start();
     }
@@ -62,3 +78,4 @@ int main(int argc, char** argv) {
 
     return 0;
 }
+

@@ -8,12 +8,14 @@
 #include <set>
 #include <websocketpp/config/asio_no_tls.hpp>
 #include <websocketpp/server.hpp>
+#include <websocketpp/common/thread.hpp>
+#include <asio/io_service.hpp>
 
 typedef websocketpp::server<websocketpp::config::asio> Server;
 typedef websocketpp::connection_hdl Connection;
 typedef Server::message_ptr Message;
 typedef std::set<Connection,std::owner_less<Connection>> ConnectionList;
-//typedef std::map<websocketpp::connection_hdl, WebSocketPtr, std::owner_less<websocketpp::connection_hdl>> Sockets;
+
 typedef websocketpp::log::alevel LogLevel;
 typedef websocketpp::lib::thread Thread;
 typedef websocketpp::lib::error_code ErrorCode;
@@ -55,14 +57,12 @@ private:
     /// This method uses the an access interface for application specific logs.
     void log(const std::string& message);
 
-    /// Opens the command prompt which allows the user to stop the server.
-    void open_command_prompt();
-
     Server server;
     std::string uri;
     int port;
     ConnectionList connections;
     bool initiating_shutdown;
+
 };
 
 #endif //CARBONCHAT_CHATSERVER_H
