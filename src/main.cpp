@@ -31,13 +31,13 @@ string prompt(const string& question, vector<string> answers, bool check_answers
 }
 
 /// Opens the command prompt for the server. This allows the user to send commands to the server.
-void server_command_line_interface() {
+void server_command_line_interface(const std::string& permissions_key) {
     std::string input;
     while (true) {
         //Read user input from stdin
         std::getline(std::cin, input);
         if (input == STOP_COMMAND) {
-            ServerCommand stopCommand(PORT_NUMBER, STOP_COMMAND, "AKEY");
+            ServerCommand stopCommand(PORT_NUMBER, STOP_COMMAND, permissions_key);
             stopCommand.execute();
             break;
         }
@@ -62,8 +62,10 @@ int main(int argc, char** argv) {
              << Color::RESET_ALL_ATTRIBUTES << endl;
 
         // Create an instance of Chatserver (the server starts automatically)
-        thread cli(&server_command_line_interface);
         ChatServer server(port);
+        // The Command Line Interface allows us to enter commands for the server.
+        // We need a permissions key so others cannot send malicious commands.
+        thread cli(&server_command_line_interface, server.get_permissions_key());
         server.start();
         cli.join();
     } else { // Else start the client

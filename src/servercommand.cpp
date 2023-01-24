@@ -22,10 +22,8 @@ ServerCommand::ServerCommand(int port, const std::string& command, const std::st
 }
 
 void ServerCommand::on_successful_new_connection(const Connection &connection) {
-    //":" + permissions_key
-    client.send(connection, command,
+    client.send(connection, command + permissions_key,
                 websocketpp::frame::opcode::text);
-
 }
 
 void ServerCommand::execute() {

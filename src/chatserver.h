@@ -9,6 +9,10 @@
 #include <websocketpp/config/asio_no_tls.hpp>
 #include <websocketpp/server.hpp>
 #include <websocketpp/common/thread.hpp>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#include <boost/algorithm/string.hpp>
 
 typedef websocketpp::server<websocketpp::config::asio> Server;
 typedef websocketpp::connection_hdl Connection;
@@ -27,6 +31,7 @@ public:
     ChatServer(int port);
     void start();
     void stop();
+    std::string get_permissions_key();
 
 private:
 
@@ -56,10 +61,15 @@ private:
     /// This method uses the an access interface for application specific logs.
     void log(const std::string& message);
 
+    /// This method generates a permissions key using the Boost UUID Library.
+    /// This key required to run all defined commands in servercommand.h header file.
+    static std::string generate_permissions_key();
+
     Server server;
     std::string uri;
     int port;
     ConnectionList connections;
+    std::string permissions_key; // This key allows users enter commands.
     bool initiating_shutdown;
 
 };

@@ -5,11 +5,12 @@
 #include "chatserver.h"
 #include "servercommand.h"
 
+
 ChatServer::ChatServer(int port) {
     ChatServer::port = port;
     uri = "ws://localhost:" + std::to_string(port);
     initiating_shutdown = false;
-
+    permissions_key = " permissions_key: " + generate_permissions_key();
     // Initialize Asio
     server.init_asio();
 
@@ -29,6 +30,7 @@ ChatServer::ChatServer(int port) {
 }
 
 void ChatServer::start() {
+    log("Generated" + permissions_key);
     log("Starting server on " + uri);
     server.listen(port);
     server.start_accept();
@@ -70,8 +72,6 @@ void ChatServer::broadcast_message(const std::string &msg) {
 void ChatServer::on_successful_new_connection(const Connection& connection) {
     log("New successful connection for client!");
     connections.insert(connection);
-    std::string msg = "A user joined the chatroom. Total online users: " + std::to_string(connections.size());
-    broadcast_message(msg);
 }
 
 void ChatServer::on_connection_failed(Connection connection) {
@@ -90,18 +90,34 @@ void ChatServer::on_close_connection(const Connection& connection) {
 }
 
 void ChatServer::on_message_received(const Connection& connection, const Message& message) {
-    log("[on_message_received] " + message->get_payload());
-    if (message->get_payload() == STOP_COMMAND){
+    std::string msg = message->get_payload();
+    log("[on_message_received] " + msg);
+    if (msg == STOP_COMMAND + permissions_key){
         stop();
         return;
-    }
-
-    for (const auto& it: connections) {
-        server.send(it, message);
+    } else if (msg.rfind(SHOW_JOIN_MSG_COMMAND, 0) == 0) { // Check for "/show-join-msg" (not -> <user>)
+        std::string username = boost::replace_first_copy(msg, SHOW_JOIN_MSG_COMMAND " ", "");
+        std::string join_msg = JOIN_MSG_FORMAT;
+        boost::replace_all(join_msg, "%user", username);
+        boost::replace_all(join_msg, "%count", std::to_string(connections.size()));
+        broadcast_message(join_msg);
+    } else {
+        for (const auto &it: connections) {
+            server.send(it, message);
+        }
     }
 }
 
 void ChatServer::log(const std::string &message) {
     server.get_alog().write(LogLevel::app, message);
+}
+
+std::string ChatServer::get_permissions_key() {
+    return ChatServer::permissions_key;
+}
+
+std::string ChatServer::generate_permissions_key() {
+    boost::uuids::uuid uuid = boost::uuids::random_generator()();
+    return to_string(uuid);
 }
 

@@ -2,6 +2,7 @@
 // Created by Floris Gravendeel on 20/01/2023.
 //
 #include "chatclient.h"
+#include "servercommand.h"
 #include "colored_terminal.cpp"
 using namespace std;
 
@@ -69,6 +70,8 @@ void ChatClient::on_successful_new_connection(const Connection &connection) {
     log("Chatserver online.", LogType::Success);
     ScopedLock guard(mutex);
     connection_open = true;
+    std::string command = SHOW_JOIN_MSG_COMMAND;
+    client.send(ChatClient::connection, command + " " + username, websocketpp::frame::opcode::text);
 }
 
 void ChatClient::on_connection_failed(const Connection &connection) {
@@ -84,12 +87,19 @@ void ChatClient::on_close_connection(const Connection &connection) {
 }
 
 void ChatClient::on_message_received(const Connection &connection, const Message &message) {
-    if (message->get_payload() == "/stop"){ // If the server sends the /stop command, stop the client.
-        log("Chatserver is going offline.", LogType::Info);
-        stop();
+//    if (message->get_payload() == "/stop"){ // If the server sends the /stop command, stop the client.
+//        log("Chatserver is going offline.", LogType::Info);
+//        stop();
+//        return; TODO: not needed?
+//    }
+    std::string msg = message->get_payload();
+    if (msg.rfind(JOIN_MSG, 0) == 0) {
+        string remove = JOIN_MSG; // removes Server: %JOINMSG% from the message
+        msg = msg.erase(0, remove.size());
+        log(msg, LogType::UserJoinedServer);
         return;
-    }
-    log(message->get_payload(), LogType::Chat);
+    } else
+    log(msg, LogType::Chat);
 }
 
 void sleep() {
@@ -139,37 +149,44 @@ void ChatClient::open_chat_prompt(){
 
 void ChatClient::log(const string &message, ChatClient::LogType logType) {
 
-    switch (logType) {
-        case Info:
-            cout << Color::FG_YELLOW << message << Color::FG_DEFAULT << endl;
-            break;
-        case ServerAnnouncement:
-            break;
-        case Chat:
-        {
-            char *msg = new char[message.length() + 1];
-            strcpy(msg, message.c_str());
 
-            char *ptr;
-            ptr = strtok(msg, ":");
-            short i = 0;
-            while (ptr != nullptr) {
-                if (i == 0) {
-                    cout << Color::FG_BLUE << ptr << ":" << Color::FG_LIGHT_BLUE;
-                } else {
-                    cout << ptr;
-                }
-                ptr = strtok(nullptr, ":");
-                i++;
+        switch (logType) {
+            case Info:
+                cout << Color::FG_YELLOW << message << Color::FG_DEFAULT << endl;
+                break;
+            case UserJoinedServer:
+            {
+                auto player_count = message.back();
+                std::string join_msg = message;
+                join_msg.pop_back();
+                cout << Color::FG_LIGHT_YELLOW << join_msg << Color::FG_MAGENTA << player_count << endl;
+                break;
             }
-            cout << endl;
+            case Chat: {
+                char *msg = new char[message.length() + 1];
+                strcpy(msg, message.c_str());
+
+                char *ptr;
+                ptr = strtok(msg, ":");
+                short i = 0;
+                while (ptr != nullptr) {
+                    if (i == 0) {
+                        cout << Color::FG_BLUE << ptr << ":" << Color::FG_LIGHT_BLUE;
+                    } else {
+                        cout << ptr;
+                    }
+                    ptr = strtok(nullptr, ":");
+                    i++;
+                }
+                cout << Color::FG_DEFAULT << endl;
+                break;
+            }
+            case Error:
+                cout << Color::FG_RED << message << Color::FG_DEFAULT << endl;
+                break;
+            case Success:
+                cout << Color::FG_GREEN << message << Color::FG_DEFAULT << endl;
+                break;
         }
-            break;
-        case Error:
-            cout << Color::FG_RED << message << Color::FG_DEFAULT << endl;
-            break;
-        case Success:
-            cout << Color::FG_GREEN << message << Color::FG_DEFAULT << endl;
-            break;
-    }
+
 }
