@@ -19,7 +19,7 @@ jobs:
       uses: MarkusJx/install-boost@v2.4.3
       with:
         boost_version: "1.81.0"
-        #boost_install_dir: C:\local
+        boost_install_dir: C:\local\
         platform_version: 2022
         toolset: msvc
     - name: Configure CMake
