@@ -17,7 +17,6 @@ public:
 private:
     void on_message_received(const Connection &connection, const Message &message) override {
         total_received_messages++;
-        log("Total received messages: " + std::to_string(total_received_messages));
         ChatServer::on_message_received(connection, message);
     }
 

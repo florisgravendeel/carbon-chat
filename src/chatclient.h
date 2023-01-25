@@ -40,6 +40,9 @@ public:
     bool connection_open;
     std::string username;
 
+    virtual /// On data message received from WebSocket. This is method is called by a handler.
+    void on_message_received(const Connection& connection, const Message& message);
+
 private:
 
 
@@ -51,8 +54,6 @@ private:
     /// Close is not called for failed connections.
     void on_close_connection(const Connection& connection);
 
-    /// On data message received from WebSocket. This is method is called by a handler.
-    void on_message_received(const Connection& connection, const Message& message);
 
     /// The chat prompt allows the user to type in and send messages to all the other users in the chat.
     void open_chat_prompt();
