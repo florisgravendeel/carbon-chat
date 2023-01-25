@@ -13,6 +13,12 @@
 // Substring used for clients to recognize the join message.
 #define JOIN_MSG "joined the chat. Total online users:"
 
+#define SHOW_LEAVE_MSG_COMMAND "/show-leave-msg" // Usage: /show-join-msg <user>
+// Format used by the server.
+#define LEAVE_MSG_FORMAT "%user left the chat. Total online users: %count"
+// Substring used for clients to recognize the leave message.
+#define LEAVE_MSG "left the chat. Total online users:"
+
 #define SERVER_GOING_OFFLINE_MSG "Chatserver is going offline." // Announcement for when the server is shutting down.
 #define UNIT_TEST_COMMAND "/unit-test"
 
