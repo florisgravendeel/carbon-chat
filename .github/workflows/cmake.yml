@@ -11,13 +11,15 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v3
-    - name: Setup Python
-      uses: actions/setup-python@v4.5.0
-      with:
-        python-version: '3.10'
     - name: Download and install Boost
+      uses: MarkusJx/install-boost@v2.4.3
       with:
-        boost_version: 1.81.0
-        boost_install_dir: C:\local
-        platform_version: 2022
-        toolset: msvc
+        boost_version: "1.73.0"
+    
+    
+     #   boost_version: 1.81.0
+      #  boost_install_dir: C:\local
+       # platform_version: 2022
+        #toolset: msvc
+
+
