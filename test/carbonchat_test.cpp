@@ -5,14 +5,19 @@
 #include <boost/test/unit_test.hpp>
 #include "testserver.cpp"
 #include "testclient.cpp"
+#include "../src/servercommand.cpp"
+
 typedef std::thread Thread;
 
 void log(const std::string& message){
     cout << Color::FG_MAGENTA << message << Color::FG_DEFAULT << endl;
 }
 
-/// This unit tests starts up 1 server and 2 clients. Once the server goes online, the unit-test command is executed.
-/// Both clients will sent 50 messages. The server has to receive 100 messages in order for the unit test to pass.
+/// This unit test starts up a test server and 2 test clients.
+/// Each client will sent 10 messages in total.
+/// For the test to pass to following needs to happen:
+/// - The server has to receive 20 messages (incoming data).
+/// - The server has to broadcast the 20 sent messages (outgoing data).
 BOOST_AUTO_TEST_CASE(ChatServerCase)
 {
     int port = 9002;
@@ -25,46 +30,30 @@ BOOST_AUTO_TEST_CASE(ChatServerCase)
     Thread server_thread([&server]() {
         server.start();
     });
-    log("Waiting 5 seconds for the server to start up.");
-    std::this_thread::sleep_for(std::chrono::seconds (5));
+    log("Waiting 3 seconds for the server to start up.");
+    std::this_thread::sleep_for(std::chrono::seconds (3));
 
 
-//    log("Launching TestClient 1 as user TestUser1");
-//    TestClient client1(ip, port, "TestUser1", false, 50);
-//    Thread client1_thread([&client1]() {
-//        client1.start();
-//    });
+    log("Launching TestClient 1 as user TestUser1");
+    TestClient client1(ip, port, "TestUser1", false, 10);
+    Thread client1_thread([&client1]() {
+        client1.start();
+    });
 
-//    Thread start_unit_test_thread([port, &server]() {
-//        ServerCommand unit_testCommand(port, UNIT_TEST_COMMAND, server.get_permissions_key());
-//        unit_testCommand.execute();
-//    });
+    log("Launching TestClient 2 as user TestUser2");
+    TestClient client2(ip, port, "TestUser2", false, 10);
+    Thread client2_thread([&client2]() {
+        client2.start();
+    });
 
-//    log("Launching Client 2 as user TestUser2");
-//    TestClient client2(ip, port, "TestUser2", false);
-//    Thread client2_thread([&client2]() {
-//        client2.start();
-//    });
-    std::this_thread::sleep_for(std::chrono::seconds (10));
+    std::this_thread::sleep_for(std::chrono::seconds (2)); // Sleep for a bit.
+    log("All 20 messages should be sent by now. Stopping server.");
 
-//    Thread stop_thread([port, &server]() {
-//        ServerCommand stopCommand(port, STOP_COMMAND, server.get_permissions_key());
-//        stopCommand.execute();
-//    });
-
+    server.stop();
     server_thread.join();
-//    client1_thread.join();
-//    client2_thread.join();
-//    stop_thread.join();
+    client1_thread.join();
+    client2_thread.join();
 
-
-
-    // To simplify this example test, let's suppose we'll test 'float'.
-    // Some test are stupid, but all should pass.
-    float x = 9.5f;
-    log("total_sent_messages: " + std::to_string(total_sent_messages));
-    log("total_received_messages: " + std::to_string(total_received_messages));
-    BOOST_CHECK(x != 0.0f);
-//    BOOST_CHECK_EQUAL((int) total_received_messages, 20);
-//    BOOST_CHECK_CLOSE(x, 9.5f, 0.0001f); // Checks differ no more then 0.0001%
+    BOOST_CHECK(total_received_messages == 20);
+    BOOST_CHECK(total_sent_messages == 20);
 }

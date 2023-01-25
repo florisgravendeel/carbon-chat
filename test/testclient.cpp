@@ -25,7 +25,7 @@ public:
     /// Between each message this thread sleeps approximately 100 milliseconds.
     void on_successful_new_connection(const Connection &connection) override {
         for (int i = 1; i < (total_messages+1); i++) {
-            client.send(connection, "TEST " + to_string(i), websocketpp::frame::opcode::text);
+            client.send(connection, "Test " + to_string(i), websocketpp::frame::opcode::text);
             this_thread::sleep_for(std::chrono::milliseconds(100));
         }
     }
