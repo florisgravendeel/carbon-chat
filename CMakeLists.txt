@@ -66,14 +66,14 @@ add_definitions(-D_WEBSOCKETPP_CPP11_STRICT_)
 # Add the third-party headers directory to the search path
 include_directories(SYSTEM "include/websocketpp")
 include_directories(SYSTEM "include/asio/asio/include/")
-include_directories(SYSTEM "include/json/dist")
+#include_directories(SYSTEM "include/json/dist")
 
 # Compile jsoncpp from source
-add_library(jsoncpp STATIC include/json/dist/jsoncpp.cpp)
+#add_library(jsoncpp STATIC include/json/dist/jsoncpp.cpp)
 
 # Build the executable
 add_executable(carbonchat src/main.cpp)
-target_link_libraries(carbonchat jsoncpp ${Boost_LIBRARIES})
+target_link_libraries(carbonchat ${Boost_LIBRARIES})
 
 set_target_properties(carbonchat PROPERTIES
         ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
