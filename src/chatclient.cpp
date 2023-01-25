@@ -9,6 +9,7 @@ using namespace std;
 ChatClient::ChatClient(const string &host, int port, const string &username, bool debug = false) {
     connection_open = false;
     connection_closed = false;
+    chat_prompt_active = false;
     ChatClient::username = username;
     server_uri = "ws://" + host + ":" + to_string(port);
 
@@ -56,9 +57,10 @@ void ChatClient::start() {
     Thread asio_thread(&Client::run, &client);
 
     // Create a thread to open the chat prompt.
-    Thread chat_prompt(&ChatClient::open_chat_prompt, this);
+    Thread chat_prompt_thread(&ChatClient::open_chat_prompt, this);
+    chat_prompt_active = true;
     asio_thread.join();
-    chat_prompt.join();
+    chat_prompt_thread.join();
 }
 
 void ChatClient::stop() {
@@ -84,6 +86,12 @@ void ChatClient::on_close_connection(const Connection &connection) {
     ScopedLock guard(mutex);
     connection_closed = true;
     log("Connection closed successfully.", LogType::Success);
+
+    if (chat_prompt_active){
+        // Due to the nature of threads, the user has to press enter to exit the chat prompt if the server goes offline.
+        // This message is not needed when client uses the /stop command (because it exits the chat thread).
+        log("Press enter to exit chat prompt.", LogType::Info);
+    }
 }
 
 void ChatClient::on_message_received(const Connection &connection, const Message &message) {
@@ -97,54 +105,7 @@ void ChatClient::on_message_received(const Connection &connection, const Message
     }
 }
 
-void sleep() {
-// Define a semi-cross platform helper method that waits/sleeps for a bit.
-#ifdef WIN32
-    Sleep(1000);
-#else
-    sleep(3);
-#endif
-}
-
-void ChatClient::open_chat_prompt(){
-    string input;
-    while (true)
-    {
-        bool wait = false;
-        {
-            ScopedLock guard(mutex);
-            // Stop if the connection has been closed.
-            if (connection_closed) {break;}
-
-            // If the connection hasn't been opened yet wait a bit and retry.
-            if (!connection_open) {
-                wait = true;
-            }
-        }
-        if (wait) {
-            sleep();
-            continue;
-        }
-        //Read user input from stdin
-        std::getline(std::cin, input);
-        if (input == "/stop"){
-            stop();
-            break;
-        }
-
-        ErrorCode error;
-        client.send(connection, username + ": " + input, websocketpp::frame::opcode::text, error);
-        if (error) {
-            log("Error sending message: " + error.message(), LogType::Error);
-            break;
-        }
-        sleep();
-    }
-}
-
 void ChatClient::log(const string &message, ChatClient::LogType logType) {
-
-
         switch (logType) {
             case Info:
                 cout << Color::FG_YELLOW << message << Color::FG_DEFAULT << endl;
@@ -190,5 +151,42 @@ void ChatClient::log(const string &message, ChatClient::LogType logType) {
                 cout << Color::FG_GREEN << message << Color::FG_DEFAULT << endl;
                 break;
         }
+}
 
+void ChatClient::open_chat_prompt(){
+    string input;
+    while (true)
+    {
+        bool wait = false;
+        {
+            ScopedLock guard(mutex);
+            // If the connection hasn't been opened yet wait a bit and retry.
+            if (!connection_open) {
+                wait = true;
+            }
+        }
+        if (wait) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            continue;
+        }
+        //Read user input from stdin
+        std::getline(std::cin, input);
+        // Stop if the connection has been closed.
+        if (connection_closed) {
+            break;
+        }
+        if (input == STOP_COMMAND){
+            chat_prompt_active = false;
+            stop();
+            break;
+        }
+        ErrorCode error;
+
+        client.send(connection, username + ": " + input, websocketpp::frame::opcode::text, error);
+        if (error) {
+            log("Error sending message: " + error.message(), LogType::Error);
+            break;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    }
 }

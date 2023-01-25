@@ -32,6 +32,8 @@ public:
     /// Each endpoint has two independent logging interfaces that are used by all connections created by that endpoint.
     /// The method uses the an access interface for application specific logs.
     static void log(const std::string& message, LogType logType);
+    Client client;
+    Connection connection;
 private:
 
     /// Either open or fail will be called for each connection. Never both. All connections that
@@ -50,14 +52,13 @@ private:
     void on_message_received(const Connection& connection, const Message& message);
 
     /// The chat prompt allows the user to type in and send messages to all the other users in the chat.
+    void open_chat_prompt();
 
 
-
-    Client client;
-    Connection connection;
     websocketpp::lib::mutex mutex;
     bool connection_open;
     bool connection_closed;
+    bool chat_prompt_active;
     std::string server_uri;
     std::string username;
 };

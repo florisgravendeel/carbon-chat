@@ -5,6 +5,9 @@
 #include "chatclient.cpp"
 #include "servercommand.cpp"
 #include "algorithm"
+#include <thread>
+#include <iostream>
+
 
 using namespace std;
 #define PORT_NUMBER 9002
@@ -65,9 +68,9 @@ int main(int argc, char** argv) {
         ChatServer server(port);
         // The Command Line Interface allows us to enter commands for the server.
         // We need a permissions key so others cannot send malicious commands.
-        thread cli(&server_command_line_interface, server.get_permissions_key());
+        thread server_cli(&server_command_line_interface, server.get_permissions_key());
         server.start();
-        cli.join();
+        server_cli.join();
     } else { // Else start the client
         username = prompt("Please enter a username", {"User"}, false);
         cout << "Hi " << Color::FG_CYAN << username << Color::FG_DEFAULT << ". ";
@@ -82,4 +85,3 @@ int main(int argc, char** argv) {
     }
     return 0;
 }
-
