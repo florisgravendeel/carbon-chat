@@ -40,4 +40,5 @@ jobs:
         run: cmake --build ${{github.workspace}}/build
 
       - name: Run tests
-        working-directory: ${{github.workspace}}/build
+        #working-directory: ${{github.workspace}}/bin
+        run: ./bin/unit_test
