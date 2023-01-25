@@ -11,6 +11,10 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v3
+    - name: Setup Python
+      uses: actions/setup-python@v4.5.0
+      with:
+        python-version: '3.10' 
     - name: Download and install Boost
       uses: MarkusJx/install-boost@v2.4.3
       with:
@@ -18,4 +22,10 @@ jobs:
         boost_install_dir: C:\local
         platform_version: 2022
         toolset: msvc
-
+    - name: Configure CMake
+      run: |
+        cmake . -DCMAKE_BUILD_TYPE=$BUILD_TYPE -B build\
+        -DBoost_INCLUDE_DIR=${{steps.install-boost.outputs.BOOST_ROOT}}/include\
+        -DBoost_LIBRARY_DIRS=${{steps.install-boost.outputs.BOOST_ROOT}}/lib
+      env:
+        BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
