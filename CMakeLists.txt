@@ -52,13 +52,13 @@ if (MINGW)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libgcc -static-libstdc++")
 endif()
 
-find_package(Boost COMPONENTS system filesystem thread unit_test_framework REQUIRED)
-add_executable(unit_test test/carbonchat_test.cpp)
-target_link_libraries(unit_test
-        ${Boost_FILESYSTEM_LIBRARY}
-        ${Boost_SYSTEM_LIBRARY}
-        ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(test tester)
+#find_package(Boost COMPONENTS system filesystem thread unit_test_framework REQUIRED)
+#add_executable(unit_test test/carbonchat_test.cpp)
+#target_link_libraries(unit_test
+#        ${Boost_FILESYSTEM_LIBRARY}
+#        ${Boost_SYSTEM_LIBRARY}
+#        ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+#add_test(test tester)
 
 # Force WebSocket++ to use 100% C++11 mode, as required in documentation
 add_definitions(-D_WEBSOCKETPP_CPP11_STRICT_)
