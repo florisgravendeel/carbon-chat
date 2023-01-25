@@ -34,17 +34,11 @@ public:
     /// begin with an open handler call will also have a matching close handler call when the connection ends.
     virtual void on_successful_new_connection(const Connection& connection);
 
+    /// On data message received from WebSocket. This is method is called by a handler.
+    virtual void on_message_received(const Connection& connection, const Message& message);
+
     Client client;
-    Connection connection;
-    websocketpp::lib::mutex mutex;
-    bool connection_open;
-    std::string username;
-
-    virtual /// On data message received from WebSocket. This is method is called by a handler.
-    void on_message_received(const Connection& connection, const Message& message);
-
 private:
-
 
     /// Either open or fail will be called for each connection. Never both.
     /// Connections that fail will never have a close handler called.
@@ -67,6 +61,10 @@ private:
     bool connection_closed;
     bool chat_prompt_active;
     std::string server_uri;
+    Connection connection;
+    websocketpp::lib::mutex mutex;
+    bool connection_open;
+    std::string username;
 };
 
 
