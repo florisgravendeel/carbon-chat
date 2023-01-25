@@ -102,9 +102,7 @@ void ChatServer::on_message_received(const Connection& connection, const Message
         boost::replace_all(join_msg, "%count", std::to_string(connections.size()));
         broadcast_message(join_msg);
     } else {
-        for (const auto &it: connections) {
-            server.send(it, message);
-        }
+        broadcast_message(message->get_payload());
     }
 }
 

@@ -23,22 +23,25 @@ class ChatClient {
 public:
     ChatClient(const std::string& host, int port, const std::string& username, bool debug);
 
+    /// Declare start and stop method virtual so it can be overriden by our test client.
     virtual void start();
-
     virtual void stop();
 
-    enum LogType { Info, UserJoinedServer, Chat, Error, Success, ServerAnnouncement};
-    /// WebSocket++ has the capability of logging events during the lifetime of the connections that it processes.
-    /// Each endpoint has two independent logging interfaces that are used by all connections created by that endpoint.
-    /// The method uses the an access interface for application specific logs.
-    static void log(const std::string& message, LogType logType);
-    Client client;
-    Connection connection;
-private:
+    /// Disables the chat prompt. The user of this client cannot send or read messages. Used in unit testing only.
+    bool chat_prompt_disabled;
 
     /// Either open or fail will be called for each connection. Never both. All connections that
     /// begin with an open handler call will also have a matching close handler call when the connection ends.
-    void on_successful_new_connection(const Connection& connection);
+    virtual void on_successful_new_connection(const Connection& connection);
+
+    Client client;
+    Connection connection;
+    websocketpp::lib::mutex mutex;
+    bool connection_open;
+    std::string username;
+
+private:
+
 
     /// Either open or fail will be called for each connection. Never both.
     /// Connections that fail will never have a close handler called.
@@ -54,13 +57,15 @@ private:
     /// The chat prompt allows the user to type in and send messages to all the other users in the chat.
     void open_chat_prompt();
 
+    enum LogType { Info, UserJoinedServer, Chat, Error, Success, ServerAnnouncement};
+    /// WebSocket++ has the capability of logging events during the lifetime of the connections that it processes.
+    /// Each endpoint has two independent logging interfaces that are used by all connections created by that endpoint.
+    /// The method uses the an access interface for application specific logs.
+    void log(const std::string& message, LogType logType);
 
-    websocketpp::lib::mutex mutex;
-    bool connection_open;
     bool connection_closed;
     bool chat_prompt_active;
     std::string server_uri;
-    std::string username;
 };
 
 

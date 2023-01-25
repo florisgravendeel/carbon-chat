@@ -9,6 +9,7 @@ using namespace std;
 ChatClient::ChatClient(const string &host, int port, const string &username, bool debug = false) {
     connection_open = false;
     connection_closed = false;
+    chat_prompt_disabled = true;
     chat_prompt_active = false;
     ChatClient::username = username;
     server_uri = "ws://" + host + ":" + to_string(port);
@@ -55,12 +56,17 @@ void ChatClient::start() {
 
     // Create a thread to run the asio io_service.
     Thread asio_thread(&Client::run, &client);
+    Thread* chat_prompt_thread;
 
-    // Create a thread to open the chat prompt.
-    Thread chat_prompt_thread(&ChatClient::open_chat_prompt, this);
-    chat_prompt_active = true;
-    asio_thread.join();
-    chat_prompt_thread.join();
+    if (chat_prompt_disabled){
+        asio_thread.join();
+    } else {
+        // Create a thread to open the chat prompt.
+        chat_prompt_thread = new Thread(&ChatClient::open_chat_prompt, this);
+        chat_prompt_active = true;
+        asio_thread.join();
+        chat_prompt_thread->join();
+    }
 }
 
 void ChatClient::stop() {
@@ -72,7 +78,7 @@ void ChatClient::on_successful_new_connection(const Connection &connection) {
     log("Chatserver online.", LogType::Success);
     ScopedLock guard(mutex);
     connection_open = true;
-    std::string command = SHOW_JOIN_MSG_COMMAND;
+    std::string command = SHOW_JOIN_MSG_COMMAND; // Sending /show-join-msg <user>
     client.send(ChatClient::connection, command + " " + username, websocketpp::frame::opcode::text);
 }
 
@@ -106,6 +112,9 @@ void ChatClient::on_message_received(const Connection &connection, const Message
 }
 
 void ChatClient::log(const string &message, ChatClient::LogType logType) {
+    if (chat_prompt_disabled){
+        return;
+    }
         switch (logType) {
             case Info:
                 cout << Color::FG_YELLOW << message << Color::FG_DEFAULT << endl;
