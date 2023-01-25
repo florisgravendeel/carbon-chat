@@ -6,7 +6,7 @@
 #define CARBONCHAT_SERVERCOMMAND_H
 
 #define STOP_COMMAND "/stop" // Usage: /stop Disconnect all clients and stops the server immediately.
-
+#define UNIT_TEST "/unit-test" // Used for unit testing the server.
 #define SHOW_JOIN_MSG_COMMAND "/show-join-msg" // Usage: /show-join-msg <user>
 // Format used by the server.
 #define JOIN_MSG_FORMAT "%user joined the chat. Total online users: %count"
