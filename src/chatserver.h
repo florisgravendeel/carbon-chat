@@ -32,7 +32,7 @@ public:
 
     std::string get_permissions_key();
 
-    /// On data message received from WebSocket. This is method is called by a handler.
+     /// On data message received from WebSocket. This is method is called by a handler.
     virtual void on_message_received(const Connection& connection, const Message& message);
 
     /// WebSocket++ has the capability of logging events during the lifetime of the connections that it processes.
@@ -48,6 +48,7 @@ public:
 
     /// Sends a message to all clients in the network.
     virtual void broadcast_message(const std::string& msg);
+
 private:
 
     /// Sends a message to a single connection.
@@ -73,7 +74,7 @@ private:
     std::string uri;
     int port;
     ConnectionList connections;
-    std::string permissions_key; // This key allows users enter commands.
+    std::string permissions_key; // This key allows users to enter privileged commands.
     bool initiating_shutdown;
 
 };
