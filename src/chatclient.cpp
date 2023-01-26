@@ -9,7 +9,7 @@ using namespace std;
 ChatClient::ChatClient(const string &host, int port, const string &username, bool debug = false) {
     connection_open = false;
     connection_closed = false;
-    chat_prompt_disabled = true;
+    chat_prompt_disabled = false;
     chat_prompt_active = false;
     ChatClient::username = username;
     server_uri = "ws://" + host + ":" + to_string(port);
