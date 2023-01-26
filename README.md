@@ -10,18 +10,20 @@ CarbonChat supports Windows and macOS. The quickest way to run the project is to
 
 The client and server are combined into one C++ executable. So there's no need to download multiple files. 
 
-## Prerequisite for development
-- C++
-- [CMake](https://cmake.org/download/)
-- [Boost 1.81.0](https://www.boost.org/users/download/)
-    - On Windows Boost should be installed in `C:/local/boost_1_81_0` (Default Installation Folder)
-    - On Mac, run `brew install boost` (Note: [Homebrew](https://brew.sh) required)
--  <del>Carbon is required. See the install guide [here](https://github.com/carbon-language/carbon-lang#getting-started).
-- The submodules are also required, don't forget to pull them as well.
+## Development
+For development first clone the project and then the submodules.
 ```
 git clone https://github.com/florisgravendeel/carbon-chat.git
 git submodule update --init
 ```
+#### Required:
+- C++
+- [CMake](https://cmake.org/download/)
+- [Boost 1.81.0](https://www.boost.org/users/download/)
+    - On Windows Boost should be installed in `C:/local/boost_1_81_0` (default installation folder)
+    - On Mac, run `brew install boost` (Note: [Homebrew](https://brew.sh) required)
+-  <del>The Carbon Language. See the install guide [here](https://github.com/carbon-language/carbon-lang#getting-started).
+
 
 
 
