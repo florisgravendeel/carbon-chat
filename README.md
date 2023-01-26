@@ -1,8 +1,10 @@
 # Carbon Chat
 > A WebSockets Chat system implementation using the [Carbon Language](https://github.com/carbon-language/carbon-lang) and C++.
 
-## Running the program
-I recommend to download to one of the releases. It's the quickest way run to the project.
+## Running CarbonChat
+I highly recommend to download one of our [releases](https://github.com/florisgravendeel/carbon-chat/releases) (Windows/macOS). It's the quickest way run to the project.
+
+The client and server are combined into one file C++ executable. So there's no need to download multiple files. 
 
 ## Prerequisite for development
 - C++
