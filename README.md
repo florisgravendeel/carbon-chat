@@ -1,6 +1,9 @@
 # Carbon Chat
 > A WebSockets Chat system implementation using the [Carbon Language](https://github.com/carbon-language/carbon-lang) and C++.
 
+[![CMake](https://github.com/florisgravendeel/carbon-chat/actions/workflows/cmake.yml/badge.svg)](https://github.com/florisgravendeel/carbon-chat/actions/workflows/cmake.yml)
+
+
 ## Running CarbonChat
 I highly recommend to download one of our [releases](https://github.com/florisgravendeel/carbon-chat/releases) (Windows/macOS). It's the quickest way run to the project.
 
