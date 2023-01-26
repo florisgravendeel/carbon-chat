@@ -1,7 +1,7 @@
 # Carbon Chat
 > A WebSockets Chat system implementation using the [Carbon Language](https://github.com/carbon-language/carbon-lang) and C++.
 
-[![CMake](https://github.com/florisgravendeel/carbon-chat/actions/workflows/cmake.yml/badge.svg)](https://github.com/florisgravendeel/carbon-chat/actions/workflows/cmake.yml)
+[![Tests](https://github.com/florisgravendeel/carbon-chat/actions/workflows/tests.yml/badge.svg)](https://github.com/florisgravendeel/carbon-chat/actions/workflows/tests.yml)
 
 
 ## Running CarbonChat
